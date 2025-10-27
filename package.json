@@ -1,0 +1,11 @@
+{
+  "name": "interior-design-assistant",
+  "private": true,
+  "workspaces": [
+    "app"
+  ],
+  "scripts": {
+    "app": "npm run start --workspace app",
+    "install-all": "npm install"
+  }
+}
