@@ -6,21 +6,29 @@ import ImageViewer from '@/components/ImageViewer';
 import Button from '@/components/Button';
 
 import Ionicons from '@expo/vector-icons/Ionicons';
-
-const PlaceholderImage = require('@/assets/images/background-image.png');
+import {useState} from "react";
 
 export default function SuggestScreen() {
+    const PlaceholderImage = require('@/assets/images/background-image.png');
+    const NextImage = require('@/assets/images/Emi.jpg');
+
+    const [selectedImage, setSelectedImage] = useState(PlaceholderImage);
+
+    const changeImage = (newImage: any) => {
+        setSelectedImage(newImage);
+    };
+
     return (
         <View style={styles.container}>
             <View style={styles.imageContainer}>
-                <ImageViewer imgSource={PlaceholderImage} />
+                <ImageViewer imgSource={selectedImage} />
             </View>
             <View style={styles.buttonContainer}>
                 <View style={styles.buttonWrapper}>
-                    <Button icon={(size) => (<Ionicons name="checkmark-sharp" size={size} color={"green"}/>)} label={"Like"} onPress={() => alert("WRYYYYYYYY")}/>
+                    <Button icon={(size) => (<Ionicons name="checkmark-sharp" size={size} color={"green"}/>)} label={"Like"} onPress={() => changeImage(NextImage)}/>
                 </View>
                 <View style={styles.buttonWrapper}>
-                    <Button icon={(size) => (<Ionicons name="close-sharp" size={size} color={"red"}/>)} label={"Dislike"} onPress={() => alert("UYSHAAAAAAA")}/>
+                    <Button icon={(size) => (<Ionicons name="close-sharp" size={size} color={"red"}/>)} label={"Dislike"} onPress={() => changeImage(PlaceholderImage)}/>
                 </View>
             </View>
         </View>
