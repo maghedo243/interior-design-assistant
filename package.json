@@ -6,6 +6,11 @@
   ],
   "scripts": {
     "app": "npm run start --workspace app -- --tunnel",
+
+    "androidRun": "npm run android --workspace app",
+    "iosRun": "npm run start --workspace app -- --tunnel",
+    "webRun": "npm run web --workspace app",
+
     "install-all": "npm install"
   }
 }
