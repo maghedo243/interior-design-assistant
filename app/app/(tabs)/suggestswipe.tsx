@@ -18,6 +18,24 @@ export default function SuggestScreen() {
         setSelectedImage(newImage);
     };
 
+    const callAPI = async () => {
+        try {
+            // 📞 Fetch data from your running local server
+            const response = await fetch("http://10.198.65.14:5000/api/feed");
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            // 🧠 The data is already personalized and sorted by the server
+            const data = await response.json();
+            console.log(data)
+        }  catch (error) {
+        console.error("Error fetching feed:", error);
+        } finally {
+            // setLoading(false);
+        }
+    }
+
     return (
         <View style={styles.container}>
             <View style={styles.imageContainer}>
@@ -28,7 +46,7 @@ export default function SuggestScreen() {
                     <Button icon={(size) => (<Ionicons name="checkmark-sharp" size={size} color={"green"}/>)} label={"Like"} onPress={() => changeImage(NextImage)}/>
                 </View>
                 <View style={styles.buttonWrapper}>
-                    <Button icon={(size) => (<Ionicons name="close-sharp" size={size} color={"red"}/>)} label={"Dislike"} onPress={() => changeImage(PlaceholderImage)}/>
+                    <Button icon={(size) => (<Ionicons name="close-sharp" size={size} color={"red"}/>)} label={"Dislike"} onPress={() => callAPI()}/>
                 </View>
             </View>
         </View>
