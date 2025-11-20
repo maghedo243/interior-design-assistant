@@ -20,16 +20,12 @@ interface FeedItem {
     likes: number;
 }
 
-const mockFeed: FeedItem[] = [
-    { id: 1, type: 'video', title: 'JS Async/Await Deep Dive', creator: '@CoderGuru', likes: 1500 },
-    // ... more mock data
-];
 
-app.get('/api/feed', (req: Request, res: Response<FeedItem[]>) => {
-    const personalizedFeed: FeedItem[] = [...mockFeed].sort(() => 0.5 - Math.random());
-
-    res.json(personalizedFeed);
-});
+// app.get('/api/feed', (req: Request, res: Response<FeedItem[]>) => {
+//     const personalizedFeed: FeedItem[] = [...mockFeed].sort(() => 0.5 - Math.random());
+//
+//     res.json(personalizedFeed);
+// });
 
 app.get('/api/user_interact', (req: Request, res: Response) => {
     res.status(200).json({ message: 'Interaction received' });
