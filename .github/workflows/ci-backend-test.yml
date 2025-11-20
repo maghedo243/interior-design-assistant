@@ -5,11 +5,12 @@ on:
     branches: [ main, server-test ]
     paths:
       - 'server/**' # Runs only when server code changes
+      - '.github/workflows/**'
   pull_request:
     branches: [ main, server-test ]
     paths:
       - 'server/**'
-
+      - '.github/workflows/**'
 jobs:
   test_backend:
     runs-on: ubuntu-latest
