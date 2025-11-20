@@ -1,0 +1,27 @@
+# Dependencies
+/node_modules
+
+# Build Artifacts
+# Match your tsconfig.json outDir, which is typically 'dist'
+/dist
+*.tsbuildinfo
+*.js.map
+*.d.ts.map
+# If you run ts-node directly without a build step:
+# *.js
+
+# Environment Variables and Local Configuration
+.env
+.env.development
+.env.production
+
+# Runtime and Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# IDE and OS Files
+.vscode/
+.idea/
+.DS_Store

@@ -11,8 +11,8 @@ export default function ImageViewer({ imgSource }: Props) {
 
 const styles = StyleSheet.create({
     image: {
-        width: 320,
-        height: 440,
+        width: '80%',
+        aspectRatio: 320 / 440,
         borderRadius: 18
     }
 });
