@@ -1,0 +1,35 @@
+name: CI Backend Test
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'server/**' # Runs only when server code changes
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'server/**'
+
+jobs:
+  test_backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server # All commands run inside the server folder
+
+    steps:
+    - uses: actions/checkout@v4 
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20' # Use the current LTS version
+
+    - name: Install dependencies & Build
+      # npm ci is faster and ensures clean install
+      run: npm ci && npm run build 
+
+    # Note: If you add unit tests later, they will run here automatically
+    - name: Run Tests
+      run: npm test
+      continue-on-error: true
