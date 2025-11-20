@@ -7,13 +7,11 @@ import cors from 'cors';
 const app = express();
 const PORT = 5000;
 
-//Test comment for background CI check
 
-// ... (Rest of your middleware setup remains the same)
 app.use(cors());
 app.use(express.json());
 
-// --- Define an Interface for Strong Typing ---
+
 interface FeedItem {
     id: number;
     type: 'video' | 'image' | 'text' | 'ad'; // Strict types for content type
@@ -27,14 +25,24 @@ const mockFeed: FeedItem[] = [
     // ... more mock data
 ];
 
-// --- API Endpoint with Typed Request and Response ---
 app.get('/api/feed', (req: Request, res: Response<FeedItem[]>) => {
-    // TypeScript ensures 'res.json' only accepts an array of FeedItem objects
     const personalizedFeed: FeedItem[] = [...mockFeed].sort(() => 0.5 - Math.random());
 
     res.json(personalizedFeed);
 });
 
-app.listen(PORT, () => {
-    console.log(`✅ TypeScript Backend Server is running at http://localhost:${PORT}`);
+app.get('/api/user_interact', (req: Request, res: Response) => {
+    res.status(200).json({ message: 'Interaction received' });
+
+    handleInteractionLogic(req.body).catch(err => {
+        console.error("Background update failed:", err);
+    });
 });
+
+app.listen(PORT, () => {
+    console.log(`✅ TypeScript Backend Server is running at http://https://interior-design-assistant.onrender.com:${PORT}`);
+});
+
+async function handleInteractionLogic(data: any){
+    console.log(`Processing background interaction for user: ${data.userId}`);
+}

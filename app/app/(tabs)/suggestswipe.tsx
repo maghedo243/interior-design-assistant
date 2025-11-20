@@ -8,6 +8,8 @@ import Button from '@/components/Button';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import {useState} from "react";
 
+const APIBase = "https://interior-design-assistant.onrender.com"
+
 export default function SuggestScreen() {
     const PlaceholderImage = require('@/assets/images/background-image.png');
     const NextImage = require('@/assets/images/Emi.jpg');
@@ -20,13 +22,24 @@ export default function SuggestScreen() {
 
     const callAPI = async () => {
         try {
-            // 📞 Fetch data from your running local server
-            const response = await fetch("https://interior-design-assistant.onrender.com/api/feed");
+            const response = await fetch(APIBase+"/api/",
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(
+                        {
+                            "userId": "TESTID",
+                            "itemId": "TESTITEM",
+                            "action": "like"
+                        }
+                    )
+                });
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
 
-            // 🧠 The data is already personalized and sorted by the server
             const data = await response.json();
             console.log(data)
         }  catch (error) {
