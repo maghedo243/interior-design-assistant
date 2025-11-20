@@ -7,6 +7,8 @@ import cors from 'cors';
 const app = express();
 const PORT = 5000;
 
+//Test comment for background CI check
+
 // ... (Rest of your middleware setup remains the same)
 app.use(cors());
 app.use(express.json());

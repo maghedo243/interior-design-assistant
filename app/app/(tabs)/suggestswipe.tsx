@@ -21,7 +21,7 @@ export default function SuggestScreen() {
     const callAPI = async () => {
         try {
             // 📞 Fetch data from your running local server
-            const response = await fetch("http://10.198.65.14:5000/api/feed");
+            const response = await fetch("https://interior-design-assistant.onrender.com/api/feed");
             if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
