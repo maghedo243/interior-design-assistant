@@ -27,7 +27,7 @@ interface FeedItem {
 //     res.json(personalizedFeed);
 // });
 
-app.get('/api/user_interact', (req: Request, res: Response) => {
+app.post('/api/user_interact', (req: Request, res: Response) => {
     res.status(200).json({ message: 'Interaction received' });
 
     handleInteractionLogic(req.body).catch(err => {
