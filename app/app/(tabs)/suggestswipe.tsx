@@ -8,6 +8,8 @@ import Button from '@/components/Button';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import {useState} from "react";
 
+import { sendInteraction } from '@/services/APIHandler';
+
 const APIBase = "https://interior-design-assistant.onrender.com"
 
 export default function SuggestScreen() {
@@ -21,34 +23,10 @@ export default function SuggestScreen() {
     };
 
     const callAPI = async () => {
-        try {
-            console.log(APIBase+"/api/user_interact")
-            const response = await fetch(APIBase+"/api/user_interact",
-                {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(
-                        {
-                            "userId": "TESTID",
-                            "itemId": "TESTITEM",
-                            "action": "like"
-                        }
-                    )
-                });
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-
-            const data = await response.json();
-            console.log(data)
-        }  catch (error) {
-        console.error("API Error:", error);
-        } finally {
-            // setLoading(false);
-        }
+        await sendInteraction("e", 'like')
     }
+
+    // const sendInteraction
 
     return (
         <View style={styles.container}>
@@ -57,10 +35,10 @@ export default function SuggestScreen() {
             </View>
             <View style={styles.buttonContainer}>
                 <View style={styles.buttonWrapper}>
-                    <Button icon={(size) => (<Ionicons name="checkmark-sharp" size={size} color={"green"}/>)} label={"Like"} onPress={() => changeImage(NextImage)}/>
+                    <Button icon={(size) => (<Ionicons name="checkmark-sharp" size={size} color={"green"}/>)} label={"Like"} onPress={() => sendInteraction("e","like")}/>
                 </View>
                 <View style={styles.buttonWrapper}>
-                    <Button icon={(size) => (<Ionicons name="close-sharp" size={size} color={"red"}/>)} label={"Dislike"} onPress={() => callAPI()}/>
+                    <Button icon={(size) => (<Ionicons name="close-sharp" size={size} color={"red"}/>)} label={"Dislike"} onPress={() => sendInteraction("e","dislike")}/>
                 </View>
             </View>
         </View>
