@@ -39,4 +39,5 @@ app.listen(PORT, () => {
 
 async function handleInteractionLogic(data: any){
     console.log(`Processing background interaction for user: ${data.userId}`);
+    console.log(`${data.action} was the received action`)
 }
