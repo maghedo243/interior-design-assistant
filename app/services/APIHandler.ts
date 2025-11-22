@@ -24,8 +24,8 @@ export const sendInteraction = async(user: any, action: 'like' | 'dislike' | 'ma
         },
         body: JSON.stringify(
             {
-                "userId": "TESTID",
-                "itemId": "TESTITEM",
+                "userId": "3000",
+                "itemId": "605.106.40",
                 "action": action
             }
         )
