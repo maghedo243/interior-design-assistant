@@ -18,7 +18,6 @@ interface FeedItem {
     likes: number;
 }
 
-
 // app.get('/api/feed', (req: Request, res: Response<FeedItem[]>) => {
 //     const personalizedFeed: FeedItem[] = [...mockFeed].sort(() => 0.5 - Math.random());
 //
