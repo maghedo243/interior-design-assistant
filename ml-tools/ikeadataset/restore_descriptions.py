@@ -54,6 +54,21 @@ def get_desc(product_id):
 # Apply to the Target DataFrame
 target_df['description'] = target_df['id'].apply(get_desc)
 
+# -----------------------------
+# CONSOLIDATE KEYWORDS
+# -----------------------------
+def consolidate_keywords(text):
+    if not isinstance(text, str): return ""
+    # Split string into words
+    words = text.split()
+    # dict.fromkeys() removes duplicates while preserving original order
+    unique_words = list(dict.fromkeys(words))
+    return " ".join(unique_words)
+
+print("Consolidating TF-IDF keywords (Unique only)...")
+# Note: We apply this to the 'tf_idf_text' column, not 'id'
+target_df['tf_idf_text'] = target_df['tf_idf_text'].apply(consolidate_keywords)
+
 # Re-order columns nicely
 cols = ['id', 'name', 'price', 'category', 'description', 'image_url', 'tf_idf_text']
 target_df = target_df[cols]

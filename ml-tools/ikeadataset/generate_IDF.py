@@ -5,7 +5,7 @@ import json
 
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-INPUT_FILE = os.path.join(SCRIPT_DIR, 'clean_product_catalog_final.json')
+INPUT_FILE = os.path.join(SCRIPT_DIR, 'clean_product_catalog_complete.json')
 OUTPUT_FILE = os.path.join(SCRIPT_DIR, 'productsIDF.json')
 
 df = pd.read_json(INPUT_FILE)
@@ -13,7 +13,7 @@ products = df.to_dict('records')
 
 wordCounts = dict()
 for product in products:
-    for word in set(product['tf_idf_text'].split(" ")):
+    for word in product['tf_idf_text'].split(" "):
         if len(word) > 1:
             if word in wordCounts: wordCounts[word] += 1
             else: wordCounts[word] = 1
