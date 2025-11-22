@@ -1,5 +1,3 @@
-// REPO/server/server.ts
-
 import express from 'express';
 import type { Request, Response } from 'express';
 import cors from 'cors';
@@ -27,7 +25,7 @@ interface FeedItem {
 //     res.json(personalizedFeed);
 // });
 
-app.post('/api/user_interact', (req: Request, res: Response) => {
+app.post('/api/user-interact', (req: Request, res: Response) => {
     res.status(200).json({ message: 'Interaction received' });
 
     handleInteractionLogic(req.body).catch(err => {
