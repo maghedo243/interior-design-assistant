@@ -22,7 +22,8 @@ export default function SuggestScreen() {
 
     const callAPI = async () => {
         try {
-            const response = await fetch(APIBase+"/api/",
+            console.log(APIBase+"/api/user_interact")
+            const response = await fetch(APIBase+"/api/user_interact",
                 {
                     method: 'POST',
                     headers: {
@@ -43,7 +44,7 @@ export default function SuggestScreen() {
             const data = await response.json();
             console.log(data)
         }  catch (error) {
-        console.error("Error fetching feed:", error);
+        console.error("API Error:", error);
         } finally {
             // setLoading(false);
         }
