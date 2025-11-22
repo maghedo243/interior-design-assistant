@@ -8,15 +8,15 @@ const callAPI = async <T>(requestLocation: RequestInfo, options: RequestInit = {
             throw new Error(`HTTP error! Status: ${response.status} - ${errorBody}`);
         }
 
-        const data = await response.json()
-        return data as T
+        const data = await response.json();
+        return data as T;
     }  catch (error) {
         console.error("API Error:", error);
         throw error
     }
 }
 
-export const sendInteraction = async(user: any,action: 'like' | 'dislike') => {
+export const sendInteraction = async(user: any, action: 'like' | 'dislike' | 'maybe') => {
     let options = {
         method: 'POST',
         headers: {
