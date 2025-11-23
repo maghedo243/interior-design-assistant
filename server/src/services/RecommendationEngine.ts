@@ -16,6 +16,7 @@ export class RecommendationEngine {
                     tf_idf_score += idf_score * user.weights[keyword]
                 }
             }
+            console.log(tf_idf_score)
             productRankings.push({
                 id: product.id,
                 score: tf_idf_score
