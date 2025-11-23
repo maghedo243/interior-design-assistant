@@ -6,7 +6,7 @@ export class RecommendationEngine {
         let user = userStore.getProfile(userId)
         let products = productCatalog.products
 
-        let productRankings = []
+        let productRankings = [];
 
         for (let product of products) {
             let tf_idf_score = 0
@@ -18,13 +18,24 @@ export class RecommendationEngine {
             }
             console.log(tf_idf_score)
             productRankings.push({
-                id: product.id,
+                product: product,
                 score: tf_idf_score
             })
         }
 
         productRankings.sort((a, b) => b.score - a.score)
-        return productRankings.slice(0,40)
+        productRankings.slice(0,40)
+
+        // only returns certain properties
+        return productRankings.map((item) => {
+                return {
+                    id: item.product.id,
+                    name: item.product.name,
+                    price: item.product.price,
+                    image_url: item.product.image_url
+                }
+            }
+        );
     }
 }
 
