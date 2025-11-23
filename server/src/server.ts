@@ -58,5 +58,5 @@ async function handleInteractionLogic(data: any){
 
     userStore.updateUser(userId,product?.keywords || [],(action === "like") ? 1 : (action === "dislike") ? -5 : 0.5)
 
-    console.log(userStore.getProfile(userId).weights)
+    // console.log(userStore.getProfile(userId).weights)
 }
