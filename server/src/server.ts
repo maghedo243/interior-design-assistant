@@ -14,8 +14,6 @@ app.use(express.json());
 
 productCatalog.loadData();
 
-console.log(productCatalog.getProductById("605.106.40")?.keywords[0])
-
 app.get('/api/feed', (req: Request, res: Response) => {
     const userId = req.query.userId as string;
 

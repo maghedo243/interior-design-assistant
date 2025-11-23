@@ -11,9 +11,9 @@ export class RecommendationEngine {
         for (let product of products) {
             let tf_idf_score = 0
             for (let keyword of product.keywords) {
-                if(keyword in user.weights){
-                    tf_idf_score += (productCatalog.idfScores[keyword] || 0) * (user.weights[keyword] || 0)
-                }
+                let idf_score = productCatalog.idfScores[keyword] || 1
+
+                if(user.weights[keyword]) tf_idf_score += idf_score * user.weights[keyword]
             }
             productRankings.push({
                 id: product.id,
