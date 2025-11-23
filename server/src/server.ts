@@ -14,8 +14,6 @@ app.use(express.json());
 
 productCatalog.loadData();
 
-console.log(productCatalog.getProductById("605.106.40")?.keywords[0])
-
 app.get('/api/feed', (req: Request, res: Response) => {
     const userId = req.query.userId as string;
 
@@ -60,5 +58,5 @@ async function handleInteractionLogic(data: any){
 
     userStore.updateUser(userId,product?.keywords || [],(action === "like") ? 1 : (action === "dislike") ? -5 : 0.5)
 
-    console.log(userStore.getProfile(userId).weights)
+    // console.log(userStore.getProfile(userId).weights)
 }
