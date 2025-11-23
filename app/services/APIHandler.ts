@@ -36,3 +36,17 @@ export const sendInteraction = async(user: any, action: 'like' | 'dislike' | 'ma
         console.error("API Error:", error);
     }
 }
+
+export const getFeed = async(user: any) => {
+    let options = {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    }
+    try {
+        return await callAPI<any>(APIBase + `/api/feed?userId=${user}`, options)
+    } catch (error) {
+        console.error("API Error:", error);
+    }
+}

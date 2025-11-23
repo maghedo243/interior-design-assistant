@@ -8,7 +8,7 @@ import Button from '@/components/Button';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import {useState} from "react";
 
-import { sendInteraction } from '@/services/APIHandler';
+import { sendInteraction, getFeed } from '@/services/APIHandler';
 
 
 export default function SuggestScreen() {
@@ -24,9 +24,9 @@ export default function SuggestScreen() {
     };
 
     const scroll = async (interaction: 'like' | 'dislike' | 'maybe') => {
-        //TODO: feed pull
         setLoading(true)
         await sendInteraction("e",interaction);
+        console.log(await getFeed("e"));
         setLoading(false)
     }
 
