@@ -11,16 +11,19 @@ export class RecommendationEngine {
         for (let product of products) {
             let tf_idf_score = 0
             for (let keyword of product.keywords) {
-                let idf_score = productCatalog.idfScores[keyword] || 1
-
-                if(user.weights[keyword]) tf_idf_score += idf_score * user.weights[keyword]
+                if(user.weights[keyword]) {
+                    let idf_score = productCatalog.idfScores[keyword] || 1
+                    tf_idf_score += idf_score * user.weights[keyword]
+                }
             }
+            console.log(tf_idf_score)
             productRankings.push({
                 id: product.id,
                 score: tf_idf_score
             })
         }
 
+        productRankings.sort((a, b) => b.score - a.score)
         return productRankings.slice(0,40)
     }
 }
