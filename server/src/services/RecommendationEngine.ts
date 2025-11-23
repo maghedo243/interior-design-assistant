@@ -21,7 +21,7 @@ export class RecommendationEngine {
             })
         }
 
-        return productRankings
+        return productRankings.slice(0,40)
     }
 }
 
