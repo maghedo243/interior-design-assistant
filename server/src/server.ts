@@ -17,7 +17,14 @@ productCatalog.loadData();
 console.log(productCatalog.getProductById("605.106.40")?.keywords[0])
 
 app.get('/api/feed', (req: Request, res: Response) => {
-    let personalizedFeed = recommendationEngine.getPersonalizedFeed(req.body.userId)
+    const userId = req.query.userId as string;
+
+    if (!userId) {
+        res.status(400).json({ error: "Missing userId parameter" });
+        return;
+    }
+
+    let personalizedFeed = recommendationEngine.getPersonalizedFeed(userId)
 
     res.json(personalizedFeed);
 });
