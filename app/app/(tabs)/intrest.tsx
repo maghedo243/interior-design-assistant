@@ -1,4 +1,4 @@
-\// interests.tsx
+// interests.tsx
 import React, { useState } from 'react';
 import {
   View,
