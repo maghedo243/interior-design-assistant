@@ -1,3 +1,5 @@
+import {Product} from "@/types";
+
 const APIBase = "https://interior-design-assistant.onrender.com"
 
 const callAPI = async <T>(requestLocation: RequestInfo, options: RequestInit = {}) => {
@@ -16,7 +18,7 @@ const callAPI = async <T>(requestLocation: RequestInfo, options: RequestInit = {
     }
 }
 
-export const sendInteraction = async(user: any, action: 'like' | 'dislike' | 'maybe') => {
+export const sendInteraction = async(user: any, product: Product, action: 'like' | 'dislike' | 'maybe') => {
     let options = {
         method: 'POST',
         headers: {
@@ -24,8 +26,8 @@ export const sendInteraction = async(user: any, action: 'like' | 'dislike' | 'ma
         },
         body: JSON.stringify(
             {
-                "userId": "3000",
-                "itemId": "605.106.40",
+                "userId": user,
+                "itemId": product.id,
                 "action": action
             }
         )

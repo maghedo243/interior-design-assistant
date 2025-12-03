@@ -1,4 +1,4 @@
-import {View, Platform, StyleSheet, ActivityIndicator, ImageSourcePropType} from 'react-native';
+import {View, StyleSheet, ActivityIndicator, Text} from 'react-native';
 
 import ImageViewer from '@/components/ImageViewer';
 import Button from '@/components/Button';
@@ -16,54 +16,71 @@ export default function SuggestScreen() {
 
     const [products, setProducts] = useState<Product[]>([])
     const [productIndex, setProductIndex] = useState<number>(0)
-    const [selectedImage, setSelectedImage] = useState<ImageSourcePropType>(PlaceholderImage);
     const [loading, setLoading] = useState<Boolean>(false);
-
-
-    const changeImage = (newImage: any) => {
-        setSelectedImage(newImage);
-    };
 
     const scroll = async (interaction: 'like' | 'dislike' | 'maybe') => {
         setLoading(true)
-        await sendInteraction("e",interaction);
-        changeImage(products[productIndex].image_url)
+
+        const currentItem = products[productIndex]
+        setProductIndex(productIndex+1)
+
+        await sendInteraction("3000",currentItem,interaction);
+
+        if(productIndex == 40) {
+            loadFeed()
+            setProductIndex(0)
+        }
+
         setLoading(false)
     }
 
-    useEffect(() => {
-        const loadInitialFeed = async () => {
-            setLoading(true)
-            try {
-                const userId = "3000";
+    const loadFeed = async () => {
+        setLoading(true)
+        try {
+            const userId = "3000";
 
-                const data = await getFeed(userId);
+            const data = await getFeed(userId);
 
-                console.log(`✅ Loaded ${data.length} products`);
-                setProducts(data);
-
-            } catch (error) {
-                console.error("❌ Failed to load feed:", error);
-                // Optional: Set an error state here to show a "Retry" button
-            } finally {
-                setLoading(false);
-            }
+            console.log(`✅ Loaded ${data.length} products`);
+            setProducts(data);
+        } catch (error) {
+            console.error("❌ Failed to load feed:", error);
+            // Optional: Set an error state here to show a "Retry" button
+        } finally {
+            setLoading(false);
         }
+    }
 
-        loadInitialFeed();
+    useEffect(() => {
+        loadFeed();
     },[])
 
     if(loading){
         return (
-            <ActivityIndicator size="large" color="#ffffff" />
+            <View style={styles.container}>
+                <ActivityIndicator size="large" color="#ffffff" />
+            </View>
         )
     }
+
+    if (!products[productIndex]) {
+        return (
+            <View style={styles.container}>
+                <Text>No more products!</Text>
+                // refresh
+            </View>
+        );
+    }
+
+    const currentProduct = products[productIndex]
+    console.log(`currennt Product: ${currentProduct.name}`)
 
     return (
         <View style={styles.container}>
             <View style={styles.imageContainer}>
-                <ImageViewer imgSource={selectedImage}/>
+                <ImageViewer imgSource={currentProduct.image_url}/>
             </View>
+            <Text>{currentProduct.name}</Text>
             <View style={styles.buttonContainer}>
                 <View style={styles.topRow}>
                     <View style={styles.buttonWrapper}>
