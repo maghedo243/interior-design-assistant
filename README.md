@@ -4,3 +4,5 @@
 2. Clone Repo to IDE of choice.
 3. Run `npm run install-all` in root directory
 4. To start app, do `npm run app`
+
+Test
