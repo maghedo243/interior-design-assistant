@@ -29,6 +29,11 @@ export default function LoginScreen() {
             // Success
             setMessage('Login successful!');
         } catch (error) {
+            let errorMessage = "Failed to do something exceptional";
+            if (error instanceof Error) {
+                errorMessage = error.message;
+            }
+            console.log(errorMessage);
             setMessage('Network error');
         }
     };
