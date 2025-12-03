@@ -73,14 +73,14 @@ export default function SuggestScreen() {
     }
 
     const currentProduct = products[productIndex]
-    console.log(`currennt Product: ${currentProduct.name}`)
+    console.log(`current Product: ${currentProduct.name}`)
 
     return (
         <View style={styles.container}>
             <View style={styles.imageContainer}>
                 <ImageViewer imgSource={currentProduct.image_url}/>
             </View>
-            <Text>{currentProduct.name}</Text>
+            <Text style={styles.productName}>{currentProduct.name}</Text>
             <View style={styles.buttonContainer}>
                 <View style={styles.topRow}>
                     <View style={styles.buttonWrapper}>
@@ -129,5 +129,8 @@ const styles = StyleSheet.create({
     maybeWrapper: {
         alignSelf: 'center',
         width: '50%',
+    },
+    productName: {
+        color: 'white'
     }
 });
