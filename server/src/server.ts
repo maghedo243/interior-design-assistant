@@ -4,6 +4,15 @@ import { productCatalog } from './services/ProductCatalog.js'
 import { userStore } from './services/UserDataHandler.js'
 import { recommendationEngine } from './services/RecommendationEngine.js'
 import cors from 'cors';
+import jwt from "jsonwebtoken";
+
+
+// --- Static Test Credentials ---
+const VALID_USERNAME = "testuser";
+const VALID_PASSWORD = "password123";
+
+// --- JWT Secret Key ---
+const SECRET_KEY = "MY_SUPER_SECRET_KEY_123";
 
 const app = express();
 const PORT = 5000;
@@ -32,6 +41,43 @@ app.post('/api/user-interact', (req: Request, res: Response) => {
 
     handleInteractionLogic(req.body).catch(err => {
         console.error("Background update failed:", err);
+    });
+});
+
+// --- POST /auth/login ---
+app.post('/auth/login', (req: Request, res: Response) => {
+    const { username, password } = req.body;
+
+    // Negative Test Case
+    if (username !== VALID_USERNAME || password !== VALID_PASSWORD) {
+        return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    // Positive Test Case
+    const token = jwt.sign({ username }, SECRET_KEY, { expiresIn: '1h' });
+
+    return res.json({
+        message: "Login successful",
+        token,
+    });
+});
+
+app.get('/auth/check', (req: Request, res: Response) => {
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader) {
+        return res.status(403).json({ message: "Missing token" });
+    }
+
+    const token = authHeader.split(" ")[1];
+
+    if (!token) {
+        return res.status(401).json({ message: "Invalid token format" });
+    }
+
+    jwt.verify(token, SECRET_KEY, (err, decoded) => {
+        if (err) return res.status(401).json({ message: "Invalid token" });
+        return res.json({ message: "Token valid", user: decoded });
     });
 });
 
