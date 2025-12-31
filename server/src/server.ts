@@ -4,25 +4,22 @@ import { productCatalog } from './services/ProductCatalog.js'
 import { userStore } from './services/UserDataHandler.js'
 import { recommendationEngine } from './services/RecommendationEngine.js'
 import cors from 'cors';
-import jwt from "jsonwebtoken";
-
-
-// --- Static Test Credentials ---
-const VALID_USERNAME = "testuser";
-const VALID_PASSWORD = "password123";
-
-// --- JWT Secret Key ---
-const SECRET_KEY = "MY_SUPER_SECRET_KEY_123";
+import jwt from 'jsonwebtoken';
+import {LoginHandler} from './services/LoginHandler.js';
+import dotenv from 'dotenv';
+import {ObjectId} from "mongodb";
 
 const app = express();
 const PORT = 5000;
 
-
 app.use(cors());
 app.use(express.json());
 
+dotenv.config()
 productCatalog.loadData();
+await LoginHandler.init()
 
+// --- POST /api/feed ---
 app.get('/api/feed', (req: Request, res: Response) => {
     const userId = req.query.userId as string;
 
@@ -36,6 +33,7 @@ app.get('/api/feed', (req: Request, res: Response) => {
     res.json(personalizedFeed);
 });
 
+// --- POST /api/user-interact ---
 app.post('/api/user-interact', (req: Request, res: Response) => {
     res.status(200).json({ message: 'Interaction received' });
 
@@ -44,41 +42,40 @@ app.post('/api/user-interact', (req: Request, res: Response) => {
     });
 });
 
-// --- POST /auth/login ---
-app.post('/auth/login', (req: Request, res: Response) => {
-    const { username, password } = req.body;
+// --- POST /api/auth/login ---
+app.post('/api/auth/login', async (req: Request, res: Response) => {
+    try {
+        const result = await handleLoginLogic(req.body);
 
-    // Negative Test Case
-    if (username !== VALID_USERNAME || password !== VALID_PASSWORD) {
-        return res.status(401).json({ message: "Invalid credentials" });
+        //login mode wrong or missing
+        if (result === false) {
+            return res.status(400).json({ message: "Login mode error" })
+        //invalid login data
+        } else if (result === "exists" ||  result === "password" || result === "user") {
+            return res.status(200).json({ message: result })
+        //valid login data
+        } else {
+            const payload = {
+                id: result.toHexString(),
+                role: "user"
+            };
+
+            const secret = process.env.JWT_SECRET || null
+
+            if(!secret){
+                return res.status(404).json({ message: "FatalError" })
+            }
+
+            const token = jwt.sign(payload, secret, {
+                expiresIn: '1h'
+            });
+
+            return res.status(200).json({ message: "Login Successful" , token: token })
+        }
+    } catch (e) {
+        console.error(e);
+        return res.status(500).json({ message: "Login failed" });
     }
-
-    // Positive Test Case
-    const token = jwt.sign({ username }, SECRET_KEY, { expiresIn: '1h' });
-
-    return res.json({
-        message: "Login successful",
-        token,
-    });
-});
-
-app.get('/auth/check', (req: Request, res: Response) => {
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader) {
-        return res.status(403).json({ message: "Missing token" });
-    }
-
-    const token = authHeader.split(" ")[1];
-
-    if (!token) {
-        return res.status(401).json({ message: "Invalid token format" });
-    }
-
-    jwt.verify(token, SECRET_KEY, (err, decoded) => {
-        if (err) return res.status(401).json({ message: "Invalid token" });
-        return res.json({ message: "Token valid", user: decoded });
-    });
 });
 
 app.listen(PORT, () => {
@@ -90,6 +87,23 @@ app.listen(PORT, () => {
 
     console.log(`✅ TypeScript Backend Server is running at ${baseUrl}`);
 });
+
+async function handleLoginLogic(data: any){
+    const { username, password, mode } = data;
+
+    if (mode === "signup") {
+        const result = await LoginHandler.signup(username, password);
+        if (result) return result
+        else return "exists"
+    } else if (mode === "login") {
+        const result = await LoginHandler.login(username, password);
+        if (result === false) return "password"
+        else if (result === null) return "user"
+        else return result
+    } else {
+        return false
+    }
+}
 
 async function handleInteractionLogic(data: any){
     // let data vars

@@ -1,6 +1,6 @@
 import {Product} from "@/types";
 
-const APIBase = "https://interior-design-assistant.onrender.com"
+const APIBase = "http://10.0.2.2:5000"
 
 const callAPI = async <T>(requestLocation: RequestInfo, options: RequestInit = {}) => {
     try {
@@ -9,9 +9,7 @@ const callAPI = async <T>(requestLocation: RequestInfo, options: RequestInit = {
             const errorBody = await response.text();
             throw new Error(`HTTP error! Status: ${response.status} - ${errorBody}`);
         }
-
-        const data = await response.json();
-        return data as T;
+        return response
     }  catch (error) {
         console.error("API Error:", error);
         throw error
@@ -32,11 +30,7 @@ export const sendInteraction = async(user: any, product: Product, action: 'like'
             }
         )
     }
-    try {
-        return await callAPI<any>(APIBase + "/api/user-interact", options)
-    } catch (error) {
-        console.error("API Error:", error);
-    }
+    return await callAPI<any>(APIBase + "/api/user-interact", options)
 }
 
 export const getFeed = async(user: any) => {
@@ -46,9 +40,39 @@ export const getFeed = async(user: any) => {
             'Content-Type': 'application/json',
         }
     }
-    try {
-        return await callAPI<any>(APIBase + `/api/feed?userId=${user}`, options)
-    } catch (error) {
-        console.error("API Error:", error);
+    return await callAPI<any>(APIBase + `/api/feed?userId=${user}`, options)
+}
+
+export const userLogin = async(username: string, password: string) => {
+    let options = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(
+            {
+                "username": username,
+                "password": password,
+                "mode": "login"
+            }
+        )
     }
+    return await callAPI<any>(APIBase + `/api/auth/login`, options)
+}
+
+export const userSignup = async(username: string, password: string) => {
+    let options = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(
+            {
+                "username": username,
+                "password": password,
+                "mode": "signup"
+            }
+        )
+    }
+    return await callAPI<any>(APIBase + `/api/auth/login`, options)
 }
