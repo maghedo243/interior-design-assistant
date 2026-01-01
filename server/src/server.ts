@@ -4,10 +4,8 @@ import { productCatalog } from './services/ProductCatalog.js'
 import { userStore } from './services/UserDataHandler.js'
 import { recommendationEngine } from './services/RecommendationEngine.js'
 import cors from 'cors';
-import jwt from 'jsonwebtoken';
-import {LoginHandler} from './services/LoginHandler.js';
+import {AuthenticationHandler} from './services/AuthenticationHandler.js';
 import dotenv from 'dotenv';
-import {ObjectId} from "mongodb";
 
 const app = express();
 const PORT = 5000;
@@ -17,7 +15,7 @@ app.use(express.json());
 
 dotenv.config()
 productCatalog.loadData();
-await LoginHandler.init()
+await AuthenticationHandler.init()
 
 // --- POST /api/feed ---
 app.get('/api/feed', (req: Request, res: Response) => {
@@ -45,36 +43,33 @@ app.post('/api/user-interact', (req: Request, res: Response) => {
 // --- POST /api/auth/login ---
 app.post('/api/auth/login', async (req: Request, res: Response) => {
     try {
-        const result = await handleLoginLogic(req.body);
+        const { username, password, mode } = req.body;
+        let result = null;
 
-        //login mode wrong or missing
-        if (result === false) {
+        if (mode === "signup") {
+            result = await AuthenticationHandler.signup(username, password);
+        } else if (mode === "login") {
+            result = await AuthenticationHandler.login(username, password);
+        } else { //login mode wrong or missing
             return res.status(400).json({ message: "Login mode error" })
-        //invalid login data
-        } else if (result === "exists" ||  result === "password" || result === "user") {
-            return res.status(200).json({ message: result })
-        //valid login data
-        } else {
-            const payload = {
-                id: result.toHexString(),
-                role: "user"
-            };
-
-            const secret = process.env.JWT_SECRET || null
-
-            if(!secret){
-                return res.status(404).json({ message: "FatalError" })
-            }
-
-            const token = jwt.sign(payload, secret, {
-                expiresIn: '1h'
-            });
-
-            return res.status(200).json({ message: "Login Successful" , token: token })
         }
+
+        if(result.message === "FatalError") return res.status(404).json(result) //token generation issue
+        return res.status(200).json(result)
     } catch (e) {
         console.error(e);
-        return res.status(500).json({ message: "Login failed" });
+        return res.status(500).json({ message: "Login error" });
+    }
+});
+
+app.post('/api/auth/verify', async (req: Request, res: Response) => {
+    try {
+        const token = req.body.token
+        if(AuthenticationHandler.verifyUserToken(token)) return res.status(200).json({ message: "Valid" })
+        else return res.status(401).json({ message: "Invalid" })
+    } catch (e) {
+        console.error(e);
+        return res.status(500).json({ message: "Verification error" })
     }
 });
 
@@ -87,23 +82,6 @@ app.listen(PORT, () => {
 
     console.log(`✅ TypeScript Backend Server is running at ${baseUrl}`);
 });
-
-async function handleLoginLogic(data: any){
-    const { username, password, mode } = data;
-
-    if (mode === "signup") {
-        const result = await LoginHandler.signup(username, password);
-        if (result) return result
-        else return "exists"
-    } else if (mode === "login") {
-        const result = await LoginHandler.login(username, password);
-        if (result === false) return "password"
-        else if (result === null) return "user"
-        else return result
-    } else {
-        return false
-    }
-}
 
 async function handleInteractionLogic(data: any){
     // let data vars

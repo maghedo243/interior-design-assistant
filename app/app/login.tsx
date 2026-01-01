@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
-import { userLogin, userSignup } from '@/services/APIHandler';
+import { userLogin, userSignup, verifyUserToken } from '@/services/APIHandler';
 
 export default function LoginScreen() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
     const [isLogin, setIsLogin] = useState(true);
+    const [token, setToken] = useState('');
 
     const toggleForm = () => {
         setIsLogin(!isLogin);
@@ -34,6 +35,8 @@ export default function LoginScreen() {
                 return;
             }
 
+            setToken(data.token)
+
             // Success
             setMessage('Login successful!');
         } catch (error) {
@@ -45,6 +48,12 @@ export default function LoginScreen() {
             setMessage('Network error');
         }
     };
+
+    const verifyToken = async () => {
+        const response = await verifyUserToken(token)
+        const data = await response.json();
+        setMessage(data.message)
+    }
 
     const handleSignup = async () => {
         try {
@@ -116,6 +125,9 @@ export default function LoginScreen() {
                         </View>
                         <View style={styles.buttonWrapper}>
                             <Button title="Create an account" onPress={toggleForm} />
+                        </View>
+                        <View style={styles.buttonWrapper}>
+                            <Button title="Verify" onPress={verifyToken} />
                         </View>
 
                         {message ? <Text style={styles.message}>{message}</Text> : null}

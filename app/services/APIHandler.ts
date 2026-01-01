@@ -76,3 +76,18 @@ export const userSignup = async(username: string, password: string) => {
     }
     return await callAPI<any>(APIBase + `/api/auth/login`, options)
 }
+
+export const verifyUserToken = async(token: string) => {
+    let options = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(
+            {
+                "token": token
+            }
+        )
+    }
+    return await callAPI<any>(APIBase + `/api/auth/verify`, options)
+}
