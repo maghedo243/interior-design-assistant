@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
 import { userLogin, userSignup, verifyUserToken } from '@/services/APIHandler';
+import {useAuth} from "@/context/AuthContext";
 
 export default function LoginScreen() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
     const [isLogin, setIsLogin] = useState(true);
-    const [token, setToken] = useState('');
+    const { login, loading } = useAuth();
 
+    //Swap from login to signup
     const toggleForm = () => {
         setIsLogin(!isLogin);
         setMessage('');
@@ -16,8 +18,7 @@ export default function LoginScreen() {
 
     const handleLogin = async () => {
         try {
-            const response = await userLogin(username, password)
-            const data = await response.json();
+            const data = await login(username, password, "login");
 
             //Invalid login entry
             if (!data.token) {
@@ -35,12 +36,10 @@ export default function LoginScreen() {
                 return;
             }
 
-            setToken(data.token)
-
             // Success
             setMessage('Login successful!');
         } catch (error) {
-            let errorMessage = "Failed to do something exceptional";
+            let errorMessage = "Failed to login";
             if (error instanceof Error) {
                 errorMessage = error.message;
             }
@@ -49,15 +48,9 @@ export default function LoginScreen() {
         }
     };
 
-    const verifyToken = async () => {
-        const response = await verifyUserToken(token)
-        const data = await response.json();
-        setMessage(data.message)
-    }
-
     const handleSignup = async () => {
         try {
-            //password validation
+            //Password validation
             if (password.length < 8) {
                 setMessage('Password must be at least 8 characters long.');
                 return;
@@ -75,8 +68,7 @@ export default function LoginScreen() {
                 return;
             }
 
-            const response = await userSignup(username, password)
-            const data = await response.json();
+            const data = await login(username, password, "signup");
 
             //Invalid signup entry
             if (!data.token) {
@@ -86,10 +78,11 @@ export default function LoginScreen() {
                 return;
             }
 
+
             // Success
             setMessage('Signup successful!');
         } catch (error) {
-            let errorMessage = "Failed to do something exceptional";
+            let errorMessage = "Failed to do signup";
             if (error instanceof Error) {
                 errorMessage = error.message;
             }
@@ -125,9 +118,6 @@ export default function LoginScreen() {
                         </View>
                         <View style={styles.buttonWrapper}>
                             <Button title="Create an account" onPress={toggleForm} />
-                        </View>
-                        <View style={styles.buttonWrapper}>
-                            <Button title="Verify" onPress={verifyToken} />
                         </View>
 
                         {message ? <Text style={styles.message}>{message}</Text> : null}

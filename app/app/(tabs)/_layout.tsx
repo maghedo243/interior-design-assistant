@@ -35,15 +35,6 @@ export default function TabLayout() {
                     ),
                 }}
             />
-            <Tabs.Screen
-                name="intrest"
-                options={{
-                    title: 'Interests',
-                    tabBarIcon: ({ color, focused }) => (
-                        <Ionicons name={focused ? 'help' : 'help-outline'} color={color} size={24}/>
-                    ),
-                }}
-            />
         </Tabs>
     );
 }

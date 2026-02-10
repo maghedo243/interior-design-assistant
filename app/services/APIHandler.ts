@@ -1,7 +1,9 @@
 import {Product} from "@/types";
+import * as SecureStore from 'expo-secure-store';
 
 const APIBase = "http://10.0.2.2:5000"
 
+//API base call
 const callAPI = async <T>(requestLocation: RequestInfo, options: RequestInit = {}) => {
     try {
         const response = await fetch(requestLocation,options);
@@ -17,10 +19,13 @@ const callAPI = async <T>(requestLocation: RequestInfo, options: RequestInit = {
 }
 
 export const sendInteraction = async(user: any, product: Product, action: 'like' | 'dislike' | 'maybe') => {
+    const token = await SecureStore.getItemAsync('authToken');
+
     let options = {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify(
             {
@@ -34,10 +39,13 @@ export const sendInteraction = async(user: any, product: Product, action: 'like'
 }
 
 export const getFeed = async(user: any) => {
+    const token = await SecureStore.getItemAsync('authToken');
+
     let options = {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
         }
     }
     return await callAPI<any>(APIBase + `/api/feed?userId=${user}`, options)

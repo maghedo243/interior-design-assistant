@@ -8,6 +8,7 @@ interface UserPayload extends JwtPayload {
     role: 'admin' | 'user'
 }
 
+// Class to handle authentication with the correct token
 export class AuthenticationHandler {
     private static client: MongoClient | null = null;
 
@@ -64,7 +65,7 @@ export class AuthenticationHandler {
             const token = this.generateToken(payload);
             if(!token) return { message: "FatalError" }
 
-            return { message: "Login Successful" , token: token }
+            return { message: "Login Successful" , token: token , userid: foundUser._id.toHexString() }
         }
         //Invalid password
         else return { message: "password" }
@@ -93,11 +94,11 @@ export class AuthenticationHandler {
         const token = this.generateToken(payload);
         if(!token) return { message: "FatalError" }
 
-        return { message: "Login Successful" , token: token }
+        return { message: "Login Successful" , token: token , userid: result.insertedId.toHexString() }
     }
 
-    public static verifyUserToken(token: string){
+    public static verifyUserToken(token: string) : boolean{
         const verify = this.verifyToken<UserPayload>(token)
-        return !!verify
+        return !!verify //double negative to ensure it exists
     }
 }

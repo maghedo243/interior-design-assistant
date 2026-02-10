@@ -14,7 +14,8 @@ import {
   ActivityIndicator
 } from 'react-native';
 import * as FileSystem from 'expo-file-system';
-import { Ionicons } from '@expo/vector-icons'; // Ensure you have expo-vector-icons installed
+import { Ionicons } from '@expo/vector-icons';
+import {useAuth} from "@/context/AuthContext"; // Ensure you have expo-vector-icons installed
 
 // Unified Step Structure
 const steps = [
@@ -81,6 +82,7 @@ export default function InterestsScreen() {
   const [answers, setAnswers] = useState<Record<string, any>>({});
   const [inputText, setInputText] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const { setNewUser } = useAuth();
 
   // We determine the active step object
   // If the user said "No" to mobility, we might skip the last step
@@ -132,15 +134,8 @@ export default function InterestsScreen() {
   const saveAndFinish = async (finalData: any) => {
     setIsSaving(true);
     try {
-      const fileUri = FileSystem.documentDirectory + 'user_interests.json';
-      const payload = {
-        ...finalData,
-        savedAt: new Date().toISOString(),
-      };
-      
-      await FileSystem.writeAsStringAsync(fileUri, JSON.stringify(payload, null, 2), {
-        encoding: FileSystem.EncodingType.UTF8,
-      });
+      // TODO: Connect to database here
+      setNewUser(false);
       
       Alert.alert('Success', 'Your preferences have been saved!');
     } catch (e) {

@@ -65,13 +65,12 @@ export default function SuggestScreen() {
         return (
             <View style={styles.container}>
                 <Text>No more products!</Text>
-                // refresh
             </View>
         );
     }
 
     const currentProduct = products[productIndex]
-    console.log(`current Product: ${currentProduct.name}`)
+    console.log(`Current Product: ${currentProduct.name}`)
 
     return (
         <View style={styles.container}>
