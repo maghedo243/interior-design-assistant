@@ -16,7 +16,6 @@ export class RecommendationEngine {
                     tf_idf_score += idf_score * user.weights[keyword]
                 }
             }
-            console.log(tf_idf_score)
             productRankings.push({
                 product: product,
                 score: tf_idf_score
@@ -24,10 +23,10 @@ export class RecommendationEngine {
         }
 
         productRankings.sort((a, b) => b.score - a.score)
-        productRankings.slice(0,40)
+
 
         // only returns certain properties
-        return productRankings.map((item) => {
+        return productRankings.slice(0,40).map((item) => {
                 return {
                     id: item.product.id,
                     name: item.product.name,
