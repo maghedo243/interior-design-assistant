@@ -1,6 +1,7 @@
 import {MongoClient} from 'mongodb'
 import bcrypt from 'bcryptjs';
 import jwt, {type JwtPayload} from "jsonwebtoken";
+import { DatabaseHandler } from './DatabaseHandler.js';
 
 //Payload interface to verify jwt token
 interface UserPayload extends JwtPayload {
@@ -38,20 +39,16 @@ export class AuthenticationHandler {
         }
     }
 
-    public static async init() {
-        const client = this.getClient();
-        await client.connect();
-        console.log("Mongo connected!");
-    }
+    public static async init() {}
 
     public static async login(username: string, password: string){
-        //Set Up Client
-        const client = this.getClient();
-        const db = client.db("appdata");
-        const users = db.collection("users");
+        const qPipeline = [
+            { $match: { username: username } },
+            { $limit: 1 }
+        ];
 
         //Check user existence
-        const foundUser = await users.findOne({username: username});
+        const foundUser = await DatabaseHandler.queryOne("appdata","users",qPipeline)
         if (foundUser === null) return { message: "user" };
 
         //Verify password and create token
@@ -73,6 +70,7 @@ export class AuthenticationHandler {
 
     public static async signup(username: string, password: string) {
         //Set Up Client
+        DatabaseHandler
         const client = this.getClient();
         const db = client.db("appdata");
         const users = db.collection("users");
