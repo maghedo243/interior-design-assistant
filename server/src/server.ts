@@ -6,6 +6,7 @@ import { recommendationEngine } from './services/RecommendationEngine.js'
 import cors from 'cors';
 import {AuthenticationHandler} from './services/AuthenticationHandler.js';
 import dotenv from 'dotenv';
+import { DatabaseHandler } from './services/DatabaseHandler.js';
 
 //Express server setup
 const app = express();
@@ -18,6 +19,7 @@ app.use(express.json());
 dotenv.config()
 productCatalog.loadData();
 await AuthenticationHandler.init()
+await DatabaseHandler.init()
 
 // --- GET /api/feed ---
 app.get('/api/feed', (req: Request, res: Response) => {

@@ -1,7 +1,7 @@
 import {Product} from "@/types";
 import * as SecureStore from 'expo-secure-store';
 
-const APIBase = "https://interior-design-assistant.onrender.com"
+const APIBase = "https://interior-design-assistant.onrender.com" //http://localhost:5000 //https://interior-design-assistant.onrender.com
 
 //API base call
 const callAPI = async <T>(requestLocation: RequestInfo, options: RequestInit = {}) => {
