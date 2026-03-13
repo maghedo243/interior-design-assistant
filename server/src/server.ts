@@ -63,11 +63,11 @@ app.post('/api/new-questionnaire', async (req: Request, res: Response) => {
         return res.status(401).json({ message: 'Unauthorized API Call' });
     }
 
-    const { userID, answers } = req.body
+    const { userId, answers } = req.body
 
     try {
-        console.log(userID)
-        const userObjectID = new ObjectId(userID)
+        console.log(userId)
+        const userObjectID = new ObjectId(userId)
         console.log(userObjectID.toHexString())
 
         await DatabaseHandler.insertOne("appdata", "userData",{ 
