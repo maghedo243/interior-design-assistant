@@ -66,11 +66,13 @@ app.post('/api/new-questionnaire', async (req: Request, res: Response) => {
     const { userID, answers } = req.body
 
     try {
+        console.log(userID)
         const userObjectID = new ObjectId(userID)
+        console.log(userObjectID)
 
         await DatabaseHandler.insertOne("appdata", "userData",{ 
             _id: userObjectID,
-            answers: answers
+            questionnaireAnswers: answers
         })
 
         res.status(200).json({ message: 'Success' });
