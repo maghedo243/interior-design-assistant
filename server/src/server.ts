@@ -7,6 +7,7 @@ import cors from 'cors';
 import {AuthenticationHandler} from './services/AuthenticationHandler.js';
 import dotenv from 'dotenv';
 import { DatabaseHandler } from './services/DatabaseHandler.js';
+import { ObjectId } from 'mongodb';
 
 //Express server setup
 const app = express();
@@ -53,6 +54,30 @@ app.post('/api/user-interact', (req: Request, res: Response) => {
     handleInteractionLogic(req.body).catch(err => {
         console.error("Background update failed:", err);
     });
+});
+
+// --- POST /api/new_questionnaire ---
+app.post('/api/new-questionnaire', async (req: Request, res: Response) => {
+    // Verify given token
+    if(!verifyToken(req)) {
+        return res.status(401).json({ message: 'Unauthorized API Call' });
+    }
+
+    const { userID, answers } = req.body
+
+    try {
+        const userObjectID = new ObjectId(userID)
+
+        await DatabaseHandler.insertOne("appdata", "userData",{ 
+            _id: userObjectID,
+            answers: answers
+        })
+
+        res.status(200).json({ message: 'Success' });
+    } catch (e) {
+        console.error(e)
+        res.status(400).json({ message: 'Invalid ID format' });
+    }
 });
 
 // --- POST /api/auth/login ---

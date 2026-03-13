@@ -38,6 +38,25 @@ export const sendInteraction = async(user: any, product: Product, action: 'like'
     return await callAPI<any>(APIBase + "/api/user-interact", options)
 }
 
+export const sendQuestionnaire = async(user: any, answers: Record<string,any>) => {
+    const token = await SecureStore.getItemAsync('authToken');
+
+    let options = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(
+            {
+                "userId": user,
+                "answers": answers
+            }
+        )
+    }
+    return await callAPI<any>(APIBase + "/api/new-questionnaire", options)
+}
+
 export const getFeed = async(user: any) => {
     const token = await SecureStore.getItemAsync('authToken');
 
