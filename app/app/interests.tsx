@@ -134,12 +134,9 @@ export default function InterestsScreen() {
   const saveAndFinish = async (finalData: any) => {
     setIsSaving(true);
     try {
-      // TODO: Connect to database here
       setNewUser(false);
 
       const res = await sendQuestionnaire(user?.id, answers)
-
-      //console.log(res);
       
       Alert.alert('Success', 'Your preferences have been saved!');
     } catch (e) {
