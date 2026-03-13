@@ -38,7 +38,7 @@ export class AuthenticationHandler {
 
         //Check user existence
         const foundUser = await DatabaseHandler.queryOne("appdata","users",qPipeline)
-        if (foundUser === null) return { message: "user" };
+        if (foundUser === undefined) return { message: "user" };
 
         //Verify password and create token
         if (await bcrypt.compare(password, foundUser.password))
@@ -67,7 +67,7 @@ export class AuthenticationHandler {
         const foundUser = await DatabaseHandler.queryOne("appdata","users",qPipeline)
 
         //Check if user already exists
-        if (foundUser !== null) return { message: "exists" }
+        if (foundUser !== undefined) return { message: "exists" }
 
         //Encrypt password
         const salt = await bcrypt.genSalt(10);
