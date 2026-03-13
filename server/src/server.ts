@@ -68,7 +68,7 @@ app.post('/api/new-questionnaire', async (req: Request, res: Response) => {
     try {
         console.log(userID)
         const userObjectID = new ObjectId(userID)
-        console.log(userObjectID)
+        console.log(userObjectID.toHexString())
 
         await DatabaseHandler.insertOne("appdata", "userData",{ 
             _id: userObjectID,
