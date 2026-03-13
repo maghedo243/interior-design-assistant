@@ -41,4 +41,13 @@ export class DatabaseHandler {
         const results = await this.query<T>(databaseName, collectionName, pipeline);
         return results.length > 0 ? results[0] : undefined;
     }
+
+    public static async insertOne(databaseName: string, collectionName: string, doc: Document){
+        const client = this.getClient();
+        const db = client.db(databaseName);
+        const collection = db.collection(collectionName);
+
+        const result = await collection.insertOne(doc);
+        return result
+    }
 }

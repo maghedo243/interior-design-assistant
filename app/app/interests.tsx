@@ -13,9 +13,9 @@ import {
   Platform,
   ActivityIndicator
 } from 'react-native';
-import * as FileSystem from 'expo-file-system';
 import { Ionicons } from '@expo/vector-icons';
 import {useAuth} from "@/context/AuthContext"; // Ensure you have expo-vector-icons installed
+import { sendQuestionnaire } from '@/services/APIHandler';
 
 // Unified Step Structure
 const steps = [
@@ -82,7 +82,7 @@ export default function InterestsScreen() {
   const [answers, setAnswers] = useState<Record<string, any>>({});
   const [inputText, setInputText] = useState('');
   const [isSaving, setIsSaving] = useState(false);
-  const { setNewUser } = useAuth();
+  const { setNewUser, user } = useAuth();
 
   // We determine the active step object
   // If the user said "No" to mobility, we might skip the last step
@@ -136,6 +136,10 @@ export default function InterestsScreen() {
     try {
       // TODO: Connect to database here
       setNewUser(false);
+
+      const res = await sendQuestionnaire(user?.id, answers)
+
+      //console.log(res);
       
       Alert.alert('Success', 'Your preferences have been saved!');
     } catch (e) {
