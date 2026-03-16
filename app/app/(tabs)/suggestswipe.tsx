@@ -11,9 +11,6 @@ import {Product} from "@/types";
 
 
 export default function SuggestScreen() {
-    const PlaceholderImage = require('@/assets/images/background-image.png');
-    const NextImage = require('@/assets/images/Emi.jpg');
-
     const [products, setProducts] = useState<Product[]>([])
     const [productIndex, setProductIndex] = useState<number>(0)
     const [loading, setLoading] = useState<Boolean>(false);
@@ -39,7 +36,8 @@ export default function SuggestScreen() {
         try {
             const userId = "3000";
 
-            const data = await getFeed(userId);
+            const response = await getFeed(userId);
+            const data = await response.json()
 
             console.log(`✅ Loaded ${data.length} products`);
             setProducts(data);
@@ -67,20 +65,19 @@ export default function SuggestScreen() {
         return (
             <View style={styles.container}>
                 <Text>No more products!</Text>
-                // refresh
             </View>
         );
     }
 
     const currentProduct = products[productIndex]
-    console.log(`currennt Product: ${currentProduct.name}`)
+    console.log(`Current Product: ${currentProduct.name}`)
 
     return (
         <View style={styles.container}>
             <View style={styles.imageContainer}>
                 <ImageViewer imgSource={currentProduct.image_url}/>
             </View>
-            <Text>{currentProduct.name}</Text>
+            <Text style={styles.productName}>{currentProduct.name}</Text>
             <View style={styles.buttonContainer}>
                 <View style={styles.topRow}>
                     <View style={styles.buttonWrapper}>
@@ -129,5 +126,8 @@ const styles = StyleSheet.create({
     maybeWrapper: {
         alignSelf: 'center',
         width: '50%',
+    },
+    productName: {
+        color: 'white'
     }
 });
