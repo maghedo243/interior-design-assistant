@@ -19,12 +19,17 @@ import { useAuth } from "@/context/AuthContext"; // Ensure you have expo-vector-
 import { sendQuestionnaire } from '@/services/APIHandler';
 
 // TODO: Make the form repeatable
+<<<<<<< HEAD
 =======
 import * as FileSystem from 'expo-file-system';
 import { Ionicons } from '@expo/vector-icons'; 
 >>>>>>> bdec0ee (Fixed the Ui for th intrest form but I still need to do some more changes and updates):app/app/(tabs)/intrest.tsx
 
 //Questionns
+=======
+
+// Unified Step Structure
+>>>>>>> 392bb18 (Started Swipe additions)
 const steps = [
   {
     id: 'style',
