@@ -13,23 +13,13 @@ import {
   ActivityIndicator,
   ImageBackground // Added for potential background lines later
 } from 'react-native';
-<<<<<<< HEAD:app/app/interests.tsx
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from "@/context/AuthContext"; // Ensure you have expo-vector-icons installed
 import { sendQuestionnaire } from '@/services/APIHandler';
 
 // TODO: Make the form repeatable
-<<<<<<< HEAD
-=======
-import * as FileSystem from 'expo-file-system';
-import { Ionicons } from '@expo/vector-icons'; 
->>>>>>> bdec0ee (Fixed the Ui for th intrest form but I still need to do some more changes and updates):app/app/(tabs)/intrest.tsx
-
-//Questionns
-=======
 
 // Unified Step Structure
->>>>>>> 392bb18 (Started Swipe additions)
 const steps = [
   {
     id: 'style',
@@ -123,18 +113,9 @@ export default function InterestsScreen() {
     setIsSaving(true);
     // savibg logic needs fixing but that is for later 
     try {
-<<<<<<< HEAD:app/app/interests.tsx
       setNewUser(false);
 
       const res = await sendQuestionnaire(user?.id, answers)
-=======
-      const fileUri = FileSystem.documentDirectory + 'user_interests.json';
-      const payload = { ...finalData, savedAt: new Date().toISOString() };
-      
-      await FileSystem.writeAsStringAsync(fileUri, JSON.stringify(payload, null, 2), {
-        encoding: FileSystem.EncodingType.UTF8,
-      });
->>>>>>> bdec0ee (Fixed the Ui for th intrest form but I still need to do some more changes and updates):app/app/(tabs)/intrest.tsx
       
       Alert.alert('Success', 'Your preferences have been saved!');
     } catch (e) {
