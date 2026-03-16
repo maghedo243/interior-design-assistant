@@ -14,8 +14,10 @@ import {
   ActivityIndicator
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import {useAuth} from "@/context/AuthContext"; // Ensure you have expo-vector-icons installed
+import { useAuth } from "@/context/AuthContext"; // Ensure you have expo-vector-icons installed
 import { sendQuestionnaire } from '@/services/APIHandler';
+
+// TODO: Make the form repeatable
 
 // Unified Step Structure
 const steps = [

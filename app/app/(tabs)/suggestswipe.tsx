@@ -5,15 +5,23 @@ import Button from '@/components/Button';
 
 import Ionicons from '@expo/vector-icons/Ionicons';
 import {useEffect, useState} from "react";
+import { useSharedValue } from 'react-native-reanimated';
 
 import { sendInteraction, getFeed } from '@/services/APIHandler';
-import {Product} from "@/types";
+import { useAuth } from "@/context/AuthContext";
+import { Product } from "@/types";
+import Draggable from '@/components/Draggable';
+import DistanceFading from '@/components/DistanceFading';
 
 
 export default function SuggestScreen() {
     const [products, setProducts] = useState<Product[]>([])
     const [productIndex, setProductIndex] = useState<number>(0)
     const [loading, setLoading] = useState<Boolean>(false);
+    const { user } = useAuth();
+
+    const imageX = useSharedValue(0)
+    const imageY = useSharedValue(0)
 
     const scroll = async (interaction: 'like' | 'dislike' | 'maybe') => {
         setLoading(true)
@@ -21,7 +29,7 @@ export default function SuggestScreen() {
         const currentItem = products[productIndex]
         setProductIndex(productIndex+1)
 
-        await sendInteraction("3000",currentItem,interaction);
+        await sendInteraction(user ? user.id : "3000",currentItem,interaction);
 
         if(productIndex == 40) {
             loadFeed()
@@ -34,7 +42,7 @@ export default function SuggestScreen() {
     const loadFeed = async () => {
         setLoading(true)
         try {
-            const userId = "3000";
+            const userId = user ? user.id : "3000";
 
             const response = await getFeed(userId);
             const data = await response.json()
@@ -74,11 +82,12 @@ export default function SuggestScreen() {
 
     return (
         <View style={styles.container}>
-            <View style={styles.imageContainer}>
+            <Draggable translateX={imageX} translateY={imageY} shouldRotate rotationFactor={55} style={styles.imageContainer}>
                 <ImageViewer imgSource={currentProduct.image_url}/>
-            </View>
+            </Draggable>
+           
             <Text style={styles.productName}>{currentProduct.name}</Text>
-            <View style={styles.buttonContainer}>
+            {/* <View style={styles.buttonContainer}>
                 <View style={styles.topRow}>
                     <View style={styles.buttonWrapper}>
                         <Button icon={(size) => (<Ionicons name="checkmark-sharp" size={size} color={"green"}/>)}
@@ -93,7 +102,7 @@ export default function SuggestScreen() {
                     <Button icon={(size) => (<Ionicons name="ellipse-outline" size={size} color={"gray"}/>)}
                             label={"Maybe"} onPress={() => scroll("maybe")}/>
                 </View>
-            </View>
+            </View> */}
         </View>
     );
 }
@@ -101,11 +110,12 @@ export default function SuggestScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#2f2f2f'
+        backgroundColor: '#1C4587'
     },
     imageContainer: {
         alignSelf: 'center',
-        marginTop: '10%'
+        width: "90%",
+        marginTop: '20%'
     },
     buttonContainer: {
         marginTop: '5%',
