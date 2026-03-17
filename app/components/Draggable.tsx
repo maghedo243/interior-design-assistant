@@ -1,3 +1,4 @@
+import { triggerZone } from '@/types';
 import React from 'react';
 import { StyleProp, StyleSheet, ViewStyle } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
@@ -8,15 +9,9 @@ import Animated, {
   withSpring,
   runOnJS,
 } from 'react-native-reanimated';
+import { scheduleOnRN } from 'react-native-worklets';
 
-interface triggerZone {
-    x: number; 
-    y: number; 
-    width: number; 
-    height: number;
-    onTrigger?: () => void;
-    onHover?: () => void;
-}
+
 
 interface DraggableProps {
     children: React.ReactNode;
@@ -61,7 +56,9 @@ const Draggable = ({ children, translateX, translateY, style, triggerZones = [],
                 const isInsideX = event.absoluteX >= triggerZone.x && event.absoluteX <= triggerZone.x + triggerZone.width;
                 const isInsideY = event.absoluteY >= triggerZone.y && event.absoluteY <= triggerZone.y + triggerZone.height;
 
-                if (isInsideX && isInsideY) { triggerZone.onTrigger?.() }
+                if (isInsideX && isInsideY && triggerZone.onTrigger) {
+                    scheduleOnRN(triggerZone.onTrigger);
+                }
             });
 
             layoutX.value = withSpring(initialX);

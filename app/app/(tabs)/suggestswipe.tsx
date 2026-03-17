@@ -1,4 +1,4 @@
-import {View, StyleSheet, ActivityIndicator, Text} from 'react-native';
+import {View, StyleSheet, ActivityIndicator, Text, useWindowDimensions} from 'react-native';
 
 import ImageViewer from '@/components/ImageViewer';
 import Button from '@/components/Button';
@@ -9,7 +9,7 @@ import { useSharedValue } from 'react-native-reanimated';
 
 import { sendInteraction, getFeed } from '@/services/APIHandler';
 import { useAuth } from "@/context/AuthContext";
-import { Product } from "@/types";
+import { Product, triggerZone } from "@/types";
 import Draggable from '@/components/Draggable';
 import DistanceFading from '@/components/DistanceFading';
 
@@ -19,6 +19,8 @@ export default function SuggestScreen() {
     const [productIndex, setProductIndex] = useState<number>(0)
     const [loading, setLoading] = useState<Boolean>(false);
     const { user } = useAuth();
+
+    const { height, width } = useWindowDimensions();
 
     const imageX = useSharedValue(0)
     const imageY = useSharedValue(0)
@@ -80,9 +82,15 @@ export default function SuggestScreen() {
     const currentProduct = products[productIndex]
     console.log(`Current Product: ${currentProduct.name}`)
 
+    
+    const triggerZones: triggerZone[] = [
+        {x: 0, y: 0, width: width * 0.10, height: height, onTrigger: () => scroll("dislike")},
+        {x: width * 0.9, y: 0, width: width * 0.10, height: height, onTrigger: () => scroll("like")}
+    ]
+
     return (
         <View style={styles.container}>
-            <Draggable translateX={imageX} translateY={imageY} shouldRotate rotationFactor={55} style={styles.imageContainer}>
+            <Draggable translateX={imageX} translateY={imageY} triggerZones={triggerZones} shouldRotate rotationFactor={55} style={styles.imageContainer}>
                 <ImageViewer imgSource={currentProduct.image_url}/>
             </Draggable>
            
@@ -105,6 +113,10 @@ export default function SuggestScreen() {
             </View> */}
         </View>
     );
+}
+
+function Trigger(message: string){
+    console.log(message)
 }
 
 const styles = StyleSheet.create({
