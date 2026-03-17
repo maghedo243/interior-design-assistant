@@ -125,7 +125,7 @@ app.listen(PORT, () => {
 });
 
 async function handleInteractionLogic(data: any){
-    // let data vars
+    // let data varsu
     let userId = data.userId;
     let itemId = data.itemId;
     let action = data.action;
