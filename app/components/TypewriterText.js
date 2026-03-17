@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Text } from 'react-native';
+// comment
 
 export default function TypewriterText({ text, style, delay = 200}) {
   const [typedText, setTypedText] = useState('');
