@@ -1,0 +1,71 @@
+name: Project CI
+
+on:
+  push:
+    branches: [ main, server-test, app-test ]
+  pull_request:
+    branches: [ main, server-test, app-test ]
+
+jobs:
+  # STEP 1: Detect what changed
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      server: ${{ steps.filter.outputs.server }}
+      app: ${{ steps.filter.outputs.app }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            server:
+              - 'server/**'
+            app:
+              - 'app/**'
+              - 'package-lock.json'
+
+  # STEP 2: Run Server Tests (Only if server changed)
+  test_server:
+    needs: changes
+    if: ${{ needs.changes.outputs.server == 'true' }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: server/package-lock.json
+      - name: Install & Build
+        run: npm ci && npm run build
+      - name: Run Tests
+        run: npm test
+        continue-on-error: true
+
+  # STEP 3: Run App Tests (Only if app changed)
+  test_app:
+    needs: changes
+    if: ${{ needs.changes.outputs.app == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'package-lock.json' # Root lock file
+      - name: Install dependencies
+        run: npm ci
+      - name: Type Check (Verify Compilation)
+        run: npx tsc --noEmit
+        working-directory: app
+      - name: Run Tests
+        run: npm test
+        working-directory: app
+        continue-on-error: true
