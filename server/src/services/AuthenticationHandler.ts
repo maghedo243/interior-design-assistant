@@ -16,7 +16,7 @@ export class AuthenticationHandler {
         const secret = process.env.JWT_SECRET || null;
         if(!secret) return null
 
-        return jwt.sign(payload, secret, { expiresIn: '1h' });
+        return jwt.sign(payload, secret, { expiresIn: '12h' });
     }
 
     private static verifyToken<PayloadType extends jwt.JwtPayload>(token: string){
