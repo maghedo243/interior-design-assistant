@@ -12,6 +12,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [token, setToken] = useState<string | null>(null);
     const [newUser, setNewUser] = useState(true);
     const [loading, setLoading] = useState(true);
+    const [homePage, setHomePage] = useState(true);
 
     const isAuthenticated = !!token && !!user;
 
@@ -86,12 +87,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         ]);
         setToken(null);
         setUser(null);
+        setHomePage(true);
     };
 
     //Sets up provider framework for React use
     return (
         <AuthContext.Provider
-            value={{ user, token, isAuthenticated, newUser, loading, login, logout, setNewUser }}
+            value={{ user, token, isAuthenticated, newUser, loading, homePage, login, logout, setNewUser, setHomePage }}
         >
             {children}
         </AuthContext.Provider>
