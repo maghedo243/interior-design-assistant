@@ -6,6 +6,7 @@ import { Link } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import ImageViewer from '@/components/ImageViewer';
 import TypewriterText from '@/components/TypewriterText';
+import LearnIda from '@/components/learnIda';
 
 const PlaceholderImage = require('@/assets/images/gif.gif');
 
@@ -15,17 +16,13 @@ export default function HomeScreen() {
   return (
     <View style={styles.container}>
       
-      {/* HEADER */}
-      <View style={styles.header}>
-        <Text style={styles.logoText}>Learn Ida</Text>
-        <Ionicons name="menu" size={32} color="rgba(174, 22, 22, 0.5)" />
-      </View>
+      <LearnIda />
 
       {/* Wrapper to center the image and button below the header */}
       <View style={styles.content}>
         
 
-       {/* ADDED: Title right above the gif */}
+       {/* Title right above the gif */}
   <TypewriterText 
     text="I.D.A" 
     style={styles.mainTitle} 
