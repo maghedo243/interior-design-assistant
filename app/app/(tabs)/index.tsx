@@ -6,7 +6,7 @@ import { Link } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import ImageViewer from '@/components/ImageViewer';
 import TypewriterText from '@/components/TypewriterText';
-import LearnIda from '@/components/LearnIda';
+import LearnIda from '@/components/learnIda';
 
 const PlaceholderImage = require('@/assets/images/gif.gif');
 

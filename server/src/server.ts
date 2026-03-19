@@ -9,7 +9,7 @@ import dotenv from 'dotenv';
 import { DatabaseHandler } from './services/DatabaseHandler.js';
 import { ObjectId } from 'mongodb';
 
-//Express server setu
+//Express server setup
 const app = express();
 const PORT = 5000;
 

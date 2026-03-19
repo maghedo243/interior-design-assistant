@@ -16,7 +16,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from "@/context/AuthContext"; // Ensure you have expo-vector-icons installed
 import { sendQuestionnaire } from '@/services/APIHandler';
-import LearnIda from '@/components/LearnIda';
+import LearnIda from '@/components/learnIda';
 
 
 // TODO: Make the form repeatable
