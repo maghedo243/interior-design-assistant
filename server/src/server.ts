@@ -9,7 +9,7 @@ import dotenv from 'dotenv';
 import { DatabaseHandler } from './services/DatabaseHandler.js';
 import { ObjectId } from 'mongodb';
 
-//Express server setu
+//Express server setupp
 const app = express();
 const PORT = 5000;
 
@@ -125,7 +125,7 @@ app.listen(PORT, () => {
 });
 
 async function handleInteractionLogic(data: any){
-    // let data vars
+    // let data varsu
     let userId = data.userId;
     let itemId = data.itemId;
     let action = data.action;
