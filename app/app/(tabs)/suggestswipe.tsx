@@ -2,7 +2,6 @@ import {View, StyleSheet, ActivityIndicator, Text, useWindowDimensions} from 're
 
 import ImageViewer from '@/components/ImageViewer';
 
-import Ionicons from '@expo/vector-icons/Ionicons';
 import {useEffect, useState} from "react";
 import { useSharedValue } from 'react-native-reanimated';
 
@@ -93,7 +92,7 @@ export default function SuggestScreen() {
                 <ImageViewer imgSource={currentProduct.image_url}/>
             </Draggable>
            
-            <Text style={styles.productName}>{currentProduct.name}</Text>
+            {/* <Text style={styles.productName}>{currentProduct.name}</Text> */}
         </View>
     );
 }
