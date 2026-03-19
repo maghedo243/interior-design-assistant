@@ -14,7 +14,7 @@ import * as ImagePicker from "expo-image-picker";
 import { Animated } from "react-native";
 
 
-export default function App() {
+export default function ScanScreen() {
     // ============ STATE VARIABLES ============
     const [permission, requestPermission] = useCameraPermissions(); // Camera permissions
     const ref = useRef<CameraView>(null); // Reference to camera component

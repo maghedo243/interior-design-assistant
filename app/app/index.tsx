@@ -11,7 +11,11 @@ import LearnIda from '@/components/learnIda';
 const PlaceholderImage = require('@/assets/images/gif.gif');
 
 export default function HomeScreen() {
-  const {logout} = useAuth();
+  const { login, setHomePage, isAuthenticated } = useAuth();
+
+  const startDesigning = async () => {
+    setHomePage(false)
+  }
 
   return (
     <View style={styles.container}>
@@ -34,7 +38,7 @@ export default function HomeScreen() {
 
         {/* The login button */}
         {/* <Link href="/login" asChild> */}
-        <TouchableOpacity style={styles.loginButton} activeOpacity={0.8}>
+        <TouchableOpacity style={styles.loginButton} activeOpacity={0.8} onPress={ startDesigning }>
           <Text style={styles.loginButtonText}>Start Designing</Text>
         </TouchableOpacity>
         {/* </Link> */}

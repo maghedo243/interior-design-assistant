@@ -12,7 +12,7 @@ export default function TypewriterText({ text, style, delay = 200}) {
 
     setTypedText("");
 
-    const typingIntval = setInterval(() => {
+    const typingInterval = setInterval(() => {
 
         if(i< text.length ) {
             curtext += text.charAt(i);
@@ -20,7 +20,7 @@ export default function TypewriterText({ text, style, delay = 200}) {
             i++
 
         }else{
-            clearInterval(typingIntval)
+            clearInterval(typingInterval)
         }
     }, delay)
     return () => clearInterval(typingInterval);

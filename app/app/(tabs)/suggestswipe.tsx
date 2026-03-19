@@ -11,6 +11,7 @@ import { Product, triggerZone } from "@/types";
 import Draggable from '@/components/Draggable';
 import DistanceFading from '@/components/DistanceFading';
 
+// TODO: Add a "maybe"
 
 export default function SuggestScreen() {
     const [products, setProducts] = useState<Product[]>([])
