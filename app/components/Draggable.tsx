@@ -21,7 +21,7 @@ interface DraggableProps {
     initialX?: number;
     initialY?: number;
     shouldRotate?: boolean;
-    rotationFactor?: number;   // Control sensitivity (higher = less tilt)
+    rotationFactor?: number;   // (higher = less tilt)
     triggerZones?: triggerZone[];
 }
 

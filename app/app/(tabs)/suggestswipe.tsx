@@ -1,7 +1,6 @@
 import {View, StyleSheet, ActivityIndicator, Text, useWindowDimensions} from 'react-native';
 
 import ImageViewer from '@/components/ImageViewer';
-import Button from '@/components/Button';
 
 import Ionicons from '@expo/vector-icons/Ionicons';
 import {useEffect, useState} from "react";

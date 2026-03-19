@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import { View, Text, TextInput, StyleSheet } from 'react-native';
 import { useAuth } from "@/context/AuthContext";
+import Button from '@/components/Button';
 
 export default function LoginScreen() {
     const [username, setUsername] = useState('');
@@ -113,10 +114,10 @@ export default function LoginScreen() {
                         />
 
                         <View style={styles.buttonWrapper}>
-                            <Button title="Login" onPress={handleLogin} />
+                            <Button label="Login" onPress={handleLogin} textStyle={ styles.buttonText }/>
                         </View>
                         <View style={styles.buttonWrapper}>
-                            <Button title="Create an account" onPress={toggleForm} />
+                            <Button label="Create an account" onPress={toggleForm} textStyle={ styles.buttonText }/>
                         </View>
 
                         {message ? <Text style={styles.message}>{message}</Text> : null}
@@ -142,10 +143,10 @@ export default function LoginScreen() {
                         />
 
                         <View style={styles.buttonWrapper}>
-                            <Button title="Signup" onPress={handleSignup} />
+                            <Button label="Signup" onPress={handleSignup} textStyle={ styles.buttonText } />
                         </View>
                         <View style={styles.buttonWrapper}>
-                            <Button title="Have an account?" onPress={toggleForm} />
+                            <Button label="Have an account?" onPress={toggleForm} textStyle={ styles.buttonText } />
                         </View>
 
                         {message ? <Text style={styles.message}>{message}</Text> : null}
@@ -161,26 +162,37 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         padding: 20,
+        backgroundColor: '#4A2338',
     },
     title: {
-        fontSize: 24,
+        fontSize: 32,
         marginBottom: 20,
         textAlign: 'center',
         fontWeight: '600',
+        fontFamily: 'ui-serif',
+        color: '#977fd4',
     },
     input: {
-        borderWidth: 1,
-        borderColor: '#ccc',
+        borderColor: '#977fd4',
         padding: 10,
-        borderRadius: 8,
+        borderBottomWidth: 6,
         marginBottom: 15,
+        fontWeight: 800,
+        fontSize: 20,
+        textAlign: 'center',
+        color: '#977fd4',
     },
     message: {
         marginTop: 15,
         textAlign: 'center',
         fontSize: 16,
+        color: '#fff',
+    },
+    buttonText: {
+        color: '#977fd4', 
+        fontSize: 20, 
     },
     buttonWrapper: {
-        marginBottom: 5,
+        margin: 10,
     }
 });
