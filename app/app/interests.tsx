@@ -10,11 +10,16 @@ import {
   SafeAreaView,
   KeyboardAvoidingView,
   Platform,
-  ActivityIndicator
+  ActivityIndicator,
+  ImageBackground // Added for potential background lines later
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import {useAuth} from "@/context/AuthContext"; // Ensure you have expo-vector-icons installed
+import { useAuth } from "@/context/AuthContext"; // Ensure you have expo-vector-icons installed
 import { sendQuestionnaire } from '@/services/APIHandler';
+import LearnIda from '@/components/LearnIda';
+
+
+// TODO: Make the form repeatable
 
 // Unified Step Structure
 const steps = [
@@ -67,17 +72,11 @@ export default function InterestsScreen() {
   const [isSaving, setIsSaving] = useState(false);
   const { setNewUser, user } = useAuth();
 
-  // We determine the active step object
-  // If the user said "No" to mobility, we might skip the last step
   const currentStep = steps[currentStepIndex];
 
-
+  // LOGIC 
   const handleBack = () => {
     if (currentStepIndex > 0) {
-      // If we are coming back from the last step, we might need to reset the text
-      if (currentStepIndex === steps.length - 1) {
-          // just go back
-      }
       setCurrentStepIndex(currentStepIndex - 1);
     }
   };
@@ -114,6 +113,7 @@ export default function InterestsScreen() {
 
   const saveAndFinish = async (finalData: any) => {
     setIsSaving(true);
+    // savibg logic needs fixing but that is for later 
     try {
       setNewUser(false);
 
@@ -204,11 +204,7 @@ export default function InterestsScreen() {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.container}
       >
-        {/* HEADER */}
-        <View style={styles.header}>
-          <Text style={styles.logoText}>Learn Ida</Text>
-          <Ionicons name="menu" size={32} color="#rgba(255,255,255,0.5)" />
-        </View>
+          <LearnIda />
 
      <ScrollView contentContainerStyle={styles.scrollContent}>
           
