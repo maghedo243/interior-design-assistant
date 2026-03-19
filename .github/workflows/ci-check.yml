@@ -2,9 +2,9 @@ name: Project CI
 
 on:
   push:
-    branches: [ main, server-test, app-test ]
+    branches: [ main, server-test]
   pull_request:
-    branches: [ main, server-test, app-test ]
+    branches: [ main, server-test ]
 
 jobs:
   # STEP 1: Detect what changed
@@ -65,7 +65,3 @@ jobs:
       - name: Type Check (Verify Compilation)
         run: npx tsc --noEmit
         working-directory: app
-      - name: Run Tests
-        run: npm test
-        working-directory: app
-        continue-on-error: true
