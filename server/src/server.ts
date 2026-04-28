@@ -144,7 +144,7 @@ async function handleInteractionLogic(data: any){
     if (product) {
         console.log(product.description_embeddings)
     }
-
+    console.log(typeof(product))
     console.log("E")
 
     // Adds keywords to user with respective weights
