@@ -142,8 +142,10 @@ async function handleInteractionLogic(data: any){
     let product = await DatabaseHandler.getProductById(itemId)
 
     if (product) {
-        console.log(product.description.embeddings)
+        console.log(product.description_embeddings)
     }
+
+    console.log("E")
 
     // Adds keywords to user with respective weights
     //userStore.updateUser(userId,product?.keywords || [],(action === "like") ? 1 : (action === "dislike") ? -5 : 0.5)
