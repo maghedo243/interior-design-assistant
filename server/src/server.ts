@@ -38,12 +38,12 @@ app.get('/api/feed', (req: Request, res: Response) => {
         return;
     }
 
-    let personalizedFeed = {
+    let personalizedFeed = [{
                     id: "B07Q9TDSGD",
                     name: "Amazon Basics Modern Plush Standard-Pile Shag Area Rug - 6x9, Beige",
                     price: "$67",
                     image_url: "https://s.yimg.com/ny/api/res/1.2/MXVHDdkCbcQ7UIR_yVkX8Q--/YXBwaWQ9aGlnaGxhbmRlcjt3PTEyNDI7aD05MzE7Y2Y9d2VicA--/https://media.zenfs.com/en/insider_articles_922/c6ce8d0b9a7b28f9c2dee8171da98b8f"
-                }
+                }]
 
     res.json(personalizedFeed);
 });
