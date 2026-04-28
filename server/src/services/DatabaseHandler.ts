@@ -1,4 +1,5 @@
-import {type Document, MongoClient} from 'mongodb'
+import {type Document, MongoClient, ObjectId} from 'mongodb'
+import { type UserData } from './UserDataHandler.js';
 
 export class DatabaseHandler {
     private static client: MongoClient | null = null;
@@ -49,5 +50,70 @@ export class DatabaseHandler {
 
         const result = await collection.insertOne(doc);
         return result
+    }
+
+    public static async getUserDataById(userId: string): Promise<UserData | undefined> {
+        const client = this.getClient();
+        const db = client.db("appdata")
+        const collection = db.collection("userData")
+        
+        try{
+            const userData = await collection.findOne({ _id: new ObjectId(userId) });
+
+            if(!userData) return;
+
+            const user: UserData = {
+                id: userId,
+                answers: userData.questionnaireAnswers,
+                vector: userData.vector,
+                recentTags: userData.recentTags
+            }
+            
+            return user
+        } catch (error) {
+            console.error(`Query failed in ${collection.collectionName}:`, error);
+            throw error;
+        }
+    }
+
+    public static async updateUserData(userData: UserData): Promise<boolean> {
+        const client = this.getClient();
+        const db = client.db("appdata")
+        const collection = db.collection("userData")
+
+        try{
+            await collection.updateOne(
+                { _id: new ObjectId(userData.id) },
+                { 
+                    $set: {
+                        answers: userData.answers,
+                        vector: userData.vector,
+                        recentTags: userData.recentTags
+                    } 
+                }
+            );
+
+            return true;
+        } catch (error) {
+            console.error(`Query failed in ${collection.collectionName}:`, error);
+            return false;
+        }
+    }
+
+    public static async getProductById(itemId: string) {
+        const client = this.getClient();
+        const db = client.db("products")
+        const collection = db.collection("productListings")
+        
+        try{
+            const productData = await collection.findOne({ _id: new ObjectId(itemId) });
+
+            if(!productData) return;
+            
+            return productData;
+        } catch (error) {
+            console.error(`Query failed in ${collection.collectionName}:`, error);
+            throw error;
+        }
     }
 }

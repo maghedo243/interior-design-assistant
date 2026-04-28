@@ -9,7 +9,7 @@ import dotenv from 'dotenv';
 import { DatabaseHandler } from './services/DatabaseHandler.js';
 import { ObjectId } from 'mongodb';
 
-//Express server setu
+//Express server setupp
 const app = express();
 const PORT = 5000;
 
@@ -21,6 +21,7 @@ dotenv.config()
 productCatalog.loadData();
 await AuthenticationHandler.init()
 await DatabaseHandler.init()
+
 
 // --- GET /api/feed ---
 app.get('/api/feed', (req: Request, res: Response) => {
@@ -37,7 +38,12 @@ app.get('/api/feed', (req: Request, res: Response) => {
         return;
     }
 
-    let personalizedFeed = recommendationEngine.getPersonalizedFeed(userId)
+    let personalizedFeed = {
+                    id: "B07Q9TDSGD",
+                    name: "Amazon Basics Modern Plush Standard-Pile Shag Area Rug - 6x9, Beige",
+                    price: "$67",
+                    image_url: "https://s.yimg.com/ny/api/res/1.2/MXVHDdkCbcQ7UIR_yVkX8Q--/YXBwaWQ9aGlnaGxhbmRlcjt3PTEyNDI7aD05MzE7Y2Y9d2VicA--/https://media.zenfs.com/en/insider_articles_922/c6ce8d0b9a7b28f9c2dee8171da98b8f"
+                }
 
     res.json(personalizedFeed);
 });
@@ -125,18 +131,22 @@ app.listen(PORT, () => {
 });
 
 async function handleInteractionLogic(data: any){
-    // let data vars
-    let userId = data.userId;
-    let itemId = data.itemId;
-    let action = data.action;
+    const userId = data.userId;
+    const itemId = data.itemId;
+    const action = data.action;
 
     // server log
     console.log(`Processing ${action} interaction for user: ${userId} on item: ${itemId}`);
 
-    let product = productCatalog.getProductById(itemId)
+    let userData = await DatabaseHandler.getUserDataById(userId)
+    let product = await DatabaseHandler.getProductById(itemId)
+
+    if (product) {
+        console.log(product.description.embeddings)
+    }
 
     // Adds keywords to user with respective weights
-    userStore.updateUser(userId,product?.keywords || [],(action === "like") ? 1 : (action === "dislike") ? -5 : 0.5)
+    //userStore.updateUser(userId,product?.keywords || [],(action === "like") ? 1 : (action === "dislike") ? -5 : 0.5)
 }
 
 // Helper Function to verify API token

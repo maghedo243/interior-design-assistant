@@ -7,16 +7,17 @@ export default function TabLayout() {
             screenOptions={{
                 tabBarActiveTintColor: '#ffd33d',
             }}
+            initialRouteName="scan"
         >
             <Tabs.Screen
-                name="index"
+                name="scan"
                 options={{
-                    title: 'Home',
+                    title: 'Scan',
                     tabBarIcon: ({ color, focused }) => (
-                        <Ionicons name={focused ? 'home-sharp' : 'home-outline'} color={color} size={24} />
+                        <Ionicons name={focused ? 'camera-outline' : 'camera-outline'} color={color} size={24}/>
                     ),
                 }}
-            />
+            /> 
             <Tabs.Screen
                 name="suggestswipe"
                 options={{

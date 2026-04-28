@@ -7,15 +7,19 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 //Root of all navigation
 function RootLayoutNav() {
-    const { isAuthenticated, loading, newUser } = useAuth();
+    const { isAuthenticated, loading, newUser, homePage } = useAuth();
     const router = useRouter();
     const pathname = usePathname();
 
     //Switches between pages. Must be changed whenever a new page is added and not in tabs
     useEffect(() => {
         if (!loading) {
-            if (isAuthenticated && !newUser && pathname !== '/(tabs)') {
-                router.replace('/(tabs)');
+            if (homePage) {
+                if (pathname !== '/') router.replace('/');
+                return;
+            }
+            if (isAuthenticated && !newUser && pathname !== '/about') {
+                router.replace('/about');
             }
             else if (!isAuthenticated && pathname !== '/login') {
                 router.replace('/login');
@@ -24,32 +28,40 @@ function RootLayoutNav() {
                 router.replace('/interests');
             }
         }
-    }, [isAuthenticated, loading, newUser]); //Called when any these properties change
+    }, [isAuthenticated, loading, newUser, homePage]); //Called when any these properties change
+
+    const getActiveScreen = () => { //gets correct screen to show
+        if (homePage) return "index";
+        if (!isAuthenticated) return "login";
+        if (newUser) return "interests";
+        return "(tabs)";
+    }
 
     if (loading) null;
 
+    console.log("Home: "+homePage)
+    console.log("Auth: "+isAuthenticated)
+
+    const activeName = getActiveScreen();
+
+    console.log("Page Chosen: "+activeName)
+
     return (
-        <Stack>
-            {isAuthenticated && !newUser ? (
-                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            ) : isAuthenticated && newUser ? (
-                <Stack.Screen name="interests" options={{ headerShown: false }} />
-            ) : (
-                <Stack.Screen name="login" options={{ headerShown: false }} />
-            )}
+        <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name={activeName} options={{ headerShown: false }} />
         </Stack>
     );
 }
 
+
 export default function RootLayout() {
     return (
         //AuthProvider needed to use auth provider in children
-        //GesturdHandlerRootView needed to use gesture based components in children
+        //GestureHandlerRootView needed to use gesture based components in children
         <GestureHandlerRootView style={{ flex: 1 }}>
             <AuthProvider>
                 <RootLayoutNav />
             </AuthProvider>
         </GestureHandlerRootView>
-        
     );
 }

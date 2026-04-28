@@ -16,6 +16,10 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from "@/context/AuthContext"; // Ensure you have expo-vector-icons installed
 import { sendQuestionnaire } from '@/services/APIHandler';
+import LearnIda from '@/components/learnIda';
+
+
+// TODO: Make the form repeatable
 
 // TODO: Make the form repeatable
 
@@ -202,11 +206,7 @@ export default function InterestsScreen() {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.container}
       >
-        {/* HEADER */}
-        <View style={styles.header}>
-          <Text style={styles.logoText}>Learn Ida</Text>
-          <Ionicons name="menu" size={32} color="#rgba(255,255,255,0.5)" />
-        </View>
+          <LearnIda />
 
      <ScrollView contentContainerStyle={styles.scrollContent}>
           

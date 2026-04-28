@@ -1,9 +1,7 @@
 import {View, StyleSheet, ActivityIndicator, Text, useWindowDimensions} from 'react-native';
 
 import ImageViewer from '@/components/ImageViewer';
-import Button from '@/components/Button';
 
-import Ionicons from '@expo/vector-icons/Ionicons';
 import {useEffect, useState} from "react";
 import { useSharedValue } from 'react-native-reanimated';
 
@@ -13,6 +11,7 @@ import { Product, triggerZone } from "@/types";
 import Draggable from '@/components/Draggable';
 import DistanceFading from '@/components/DistanceFading';
 
+// TODO: Add a "maybe"
 
 export default function SuggestScreen() {
     const [products, setProducts] = useState<Product[]>([])
@@ -94,7 +93,7 @@ export default function SuggestScreen() {
                 <ImageViewer imgSource={currentProduct.image_url}/>
             </Draggable>
            
-            <Text style={styles.productName}>{currentProduct.name}</Text>
+            {/* <Text style={styles.productName}>{currentProduct.name}</Text> */}
         </View>
     );
 }
