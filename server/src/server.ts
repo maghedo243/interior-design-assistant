@@ -16,7 +16,7 @@ const PORT = 5000;
 app.use(cors());
 app.use(express.json());
 
-//Initializing helper files and config
+//Initializing helper files and conf
 dotenv.config()
 productCatalog.loadData();
 await AuthenticationHandler.init()
