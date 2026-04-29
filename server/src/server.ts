@@ -38,12 +38,20 @@ app.get('/api/feed', (req: Request, res: Response) => {
         return;
     }
 
-    let personalizedFeed = [{
-                    id: "d69179d3bea85030d10b1748",
+    let personalizedFeed = [
+                {
+                    id: "4da12c036ec80f47c555e3d6",
                     name: "Amazon Basics Modern Plush Standard-Pile Shag Area Rug - 6x9, Beige",
                     price: "$67",
                     image_url: "https://s.yimg.com/ny/api/res/1.2/MXVHDdkCbcQ7UIR_yVkX8Q--/YXBwaWQ9aGlnaGxhbmRlcjt3PTEyNDI7aD05MzE7Y2Y9d2VicA--/https://media.zenfs.com/en/insider_articles_922/c6ce8d0b9a7b28f9c2dee8171da98b8f"
-                }]
+                },
+                {
+                    id: "9ad7ff6752d169107aa98471",
+                    name: "Amazon Basics Modern Plush Standard-Pile Shag Area Rug - 6x9, Beige",
+                    price: "$67",
+                    image_url: "https://s.yimg.com/ny/api/res/1.2/MXVHDdkCbcQ7UIR_yVkX8Q--/YXBwaWQ9aGlnaGxhbmRlcjt3PTEyNDI7aD05MzE7Y2Y9d2VicA--/https://media.zenfs.com/en/insider_articles_922/c6ce8d0b9a7b28f9c2dee8171da98b8f"
+                },
+            ]
 
     res.json(personalizedFeed);
 });
