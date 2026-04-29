@@ -1,5 +1,5 @@
 import { productCatalog } from './ProductCatalog.js'
-import { userStore } from './UserDataHandler.js'
+import { UserDataHandler } from './UserDataHandler.js'
 
 export class RecommendationEngine {
     // public getPersonalizedFeed(userId: string) {
@@ -40,7 +40,7 @@ export class RecommendationEngine {
     public getPersonalizedFeed(userId: string) {
     }
 
-    
+
 }
 
 export const recommendationEngine = new RecommendationEngine()
