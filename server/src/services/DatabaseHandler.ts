@@ -1,5 +1,5 @@
 import {type Document, MongoClient, ObjectId} from 'mongodb'
-import { type UserData } from './UserDataHandler.js';
+import { type UserData } from '../types/DBDocuments.js';
 
 export class DatabaseHandler {
     private static client: MongoClient | null = null;
@@ -106,7 +106,7 @@ export class DatabaseHandler {
         const collection = db.collection("productListings")
         
         try{
-            const productData = await collection.findOne({ _id: new ObjectId(itemId) });
+            const productData = await collection.findOne({ _id: new ObjectId(itemId) }) as any;
 
             if(!productData) return;
             
