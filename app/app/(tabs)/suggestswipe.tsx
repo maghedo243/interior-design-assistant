@@ -57,7 +57,9 @@ export default function SuggestScreen() {
             const userId = user ? user.id : "3000";
 
             const response = await getFeed(userId);
-            const data = await response.json();
+            const data = await response.json()
+
+            console.log(`✅ Loaded ${data.length} products`);
             setProducts(data);
         } catch (error) {
             console.error("❌ Failed to load feed:", error);

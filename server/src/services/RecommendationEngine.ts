@@ -51,60 +51,79 @@ export class RecommendationEngine {
             if (!userVector || userVector.length === 0) {
                 console.log(`Cold start for user: ${userId}. Serving default feed.`);
                 
-                return await DatabaseHandler.query("products","productListings",[{ $sample: { size: 30 } }]);
+                return await DatabaseHandler.query("products","productListings",[
+                    { $sample: { size: 30 } },
+                    { $project: { description_embedding: 0 } }
+                ]);
             }
             
             const userSearchTerms = recentTags.join(" ");
 
-            // Product Search Pipeline
-            const pipeline = [
+            const vectorPipeline = [
                 {
-                    $rankFusion: {
-                        input: {
-                            pipelines: {
-                                // Vector Search
-                                vectorSearchLeg: [
-                                    {
-                                        $vectorSearch: {
-                                            index: "vector_index", 
-                                            path: "description_embedding",
-                                            queryVector: userVector,
-                                            numCandidates: 100,
-                                            limit: 50
-                                        }
-                                    }
-                                ],
-                                // Keyword Search
-                                keywordSearchLeg: [
-                                    {
-                                        $search: {
-                                            index: "default",
-                                            text: {
-                                                query: userSearchTerms,
-                                                path: ["enriched_keywords", "item_name", "style"]
-                                            }
-                                        }
-                                    }
-                                ]
-                            }
+                    $vectorSearch: {
+                        index: "vector_index",
+                        path: "description_embedding",
+                        queryVector: userVector,
+                        numCandidates: 100,
+                        limit: 50
+                    }
+                },
+                { $project: { description_embedding: 0 } }
+            ];
+
+            const lexicalPipeline = [
+                {
+                    $search: {
+                        index: "default",
+                        text: {
+                            query: userSearchTerms,
+                            path: ["enriched_keywords", "item_name", "style"]
                         }
                     }
                 },
-                // Cap the final feed at 30
-                { $limit: 30 },
-                
-                // Clean the payload for the frontend
-                {
-                    $project: {
-                        description_embedding: 0, 
-                        
-                        // You can optionally project the internal RRF score to see the math in your console
-                        scoreDetails: { $meta: "searchScore" }
-                    }
-                }
+                { $limit: 50 },
+                { $project: { description_embedding: 0 } }
             ];
 
-            const feed = await DatabaseHandler.query("products","productListings",pipeline)
+            const [vectorResults, lexicalResults] = await Promise.all([
+                DatabaseHandler.query("products","productListings",vectorPipeline),
+                DatabaseHandler.query("products","productListings",lexicalPipeline)
+            ]);
+
+            // Start the Reciprocal Rank Fusion (RRF) Math
+            const K = 60; // RRF smoothing constant
+            const fusedScores = new Map<string, { score: number, doc: any }>();
+
+            // Process Vector Results
+            vectorResults.forEach((doc, index) => {
+                const rank = index + 1;
+                const rrfScore = 1 / (rank + K);
+                fusedScores.set(doc._id.toString(), { score: rrfScore, doc: doc });
+            });
+
+            // Process Lexical Results (and merge scores if the item already exists from the vector search)
+            lexicalResults.forEach((doc, index) => {
+                const rank = index + 1;
+                const rrfScore = 1 / (rank + K);
+                const idString = doc._id.toString();
+
+                if (fusedScores.has(idString)) {
+                    // Item was found in both searches! Stack the scores.
+                    const existing = fusedScores.get(idString)!;
+                    existing.score += rrfScore;
+                } else {
+                    // Item was only found in lexical search
+                    fusedScores.set(idString, { score: rrfScore, doc: doc });
+                }
+            });
+
+            // Sort by highest RRF score and get the top 30
+            const feed = Array.from(fusedScores.values())
+                .sort((a, b) => b.score - a.score)
+                .slice(0, 30)
+                .map(item => item.doc);
+        
             return feed;
         } catch (error) {
             console.error(`Failed to generate recommendation feed for user ${userId}:`, error);
