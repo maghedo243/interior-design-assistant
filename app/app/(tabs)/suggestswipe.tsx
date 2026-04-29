@@ -49,7 +49,8 @@ export default function SuggestScreen() {
             const data = await response.json()
 
             console.log(`✅ Loaded ${data.length} products`);
-            setProducts(data);
+            console.log(data)
+            // ßsetProducts(data);
         } catch (error) {
             console.error("❌ Failed to load feed:", error);
             // Optional: Set an error state here to show a "Retry" button
