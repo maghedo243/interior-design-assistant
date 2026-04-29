@@ -142,7 +142,7 @@ async function handleInteractionLogic(data: any){
     let product = await DatabaseHandler.getProductById(itemId)
 
     if (product) {
-        console.log(product.description_embeddings)
+        console.log(product.description_embedding)
     }
     console.log(typeof(product))
     console.log("E")
