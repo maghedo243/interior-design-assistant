@@ -91,6 +91,9 @@ export class RecommendationEngine {
                 DatabaseHandler.query("products","productListings",lexicalPipeline)
             ]);
 
+            console.log(vectorResults)
+            console.log(lexicalResults)
+
             // Start the Reciprocal Rank Fusion (RRF) Math
             const K = 60; // RRF smoothing constant
             const fusedScores = new Map<string, { score: number, doc: any }>();
@@ -123,6 +126,8 @@ export class RecommendationEngine {
                 .sort((a, b) => b.score - a.score)
                 .slice(0, 30)
                 .map(item => item.doc);
+
+            console.log(feed)
         
             return feed;
         } catch (error) {
