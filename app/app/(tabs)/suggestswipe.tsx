@@ -57,6 +57,7 @@ export default function SuggestScreen() {
             const userId = user ? user.id : "3000";
 
             const response = await getFeed(userId);
+            console.log(response)
             const data = await response.json()
 
             console.log(`✅ Loaded ${data.length} products`);

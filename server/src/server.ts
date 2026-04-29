@@ -21,7 +21,7 @@ await DatabaseHandler.init()
 
 
 // --- GET /api/feed ---
-app.get('/api/feed', (req: Request, res: Response) => {
+app.get('/api/feed', async (req: Request, res: Response) => {
     // Verify given token
     if(!verifyToken(req)) {
         return res.status(401).json({ message: 'Unauthorized API Call' });
@@ -36,9 +36,9 @@ app.get('/api/feed', (req: Request, res: Response) => {
     }
 
     try {
-        let personalizedFeed = RecommendationEngine.getPersonalizedFeed(userId);
+        let personalizedFeed = await RecommendationEngine.getPersonalizedFeed(userId);
 
-        res.json(personalizedFeed);
+        res.status(200).json(personalizedFeed);
     } catch (error){
         res.status(400).json({ error: "Failed to generate recommendation feed for user" });
         return;
