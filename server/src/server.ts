@@ -1,8 +1,7 @@
 import express from 'express';
 import type { Request, Response } from 'express';
-import { productCatalog } from './services/ProductCatalog.js'
 import { UserDataHandler } from './services/UserDataHandler.js'
-import { recommendationEngine } from './services/RecommendationEngine.js'
+import { RecommendationEngine } from './services/RecommendationEngine.js'
 import cors from 'cors';
 import {AuthenticationHandler} from './services/AuthenticationHandler.js';
 import dotenv from 'dotenv';
@@ -18,8 +17,6 @@ app.use(express.json());
 
 //Initializing helper files and config
 dotenv.config()
-productCatalog.loadData();
-await AuthenticationHandler.init()
 await DatabaseHandler.init()
 
 
@@ -38,22 +35,14 @@ app.get('/api/feed', (req: Request, res: Response) => {
         return;
     }
 
-    let personalizedFeed = [
-                {
-                    id: "4da12c036ec80f47c555e3d6",
-                    name: "Amazon Basics Modern Plush Standard-Pile Shag Area Rug - 6x9, Beige",
-                    price: "$67",
-                    image_url: "https://s.yimg.com/ny/api/res/1.2/MXVHDdkCbcQ7UIR_yVkX8Q--/YXBwaWQ9aGlnaGxhbmRlcjt3PTEyNDI7aD05MzE7Y2Y9d2VicA--/https://media.zenfs.com/en/insider_articles_922/c6ce8d0b9a7b28f9c2dee8171da98b8f"
-                },
-                {
-                    id: "9ad7ff6752d169107aa98471",
-                    name: "Amazon Basics Modern Plush Standard-Pile Shag Area Rug - 6x9, Beige",
-                    price: "$67",
-                    image_url: "https://s.yimg.com/ny/api/res/1.2/MXVHDdkCbcQ7UIR_yVkX8Q--/YXBwaWQ9aGlnaGxhbmRlcjt3PTEyNDI7aD05MzE7Y2Y9d2VicA--/https://media.zenfs.com/en/insider_articles_922/c6ce8d0b9a7b28f9c2dee8171da98b8f"
-                },
-            ]
+    try {
+        let personalizedFeed = RecommendationEngine.getPersonalizedFeed(userId);
 
-    res.json(personalizedFeed);
+        res.json(personalizedFeed);
+    } catch (error){
+        res.status(400).json({ error: "Failed to generate recommendation feed for user" });
+        return;
+    }
 });
 
 // --- POST /api/user-interact ---
@@ -175,9 +164,6 @@ async function handleInteractionLogic(data: any){
     userData.recentTags = recentTags
 
     DatabaseHandler.updateUserData(userData)
-
-    // Adds keywords to user with respective weights
-    //userStore.updateUser(userId,product?.keywords || [],(action === "like") ? 1 : (action === "dislike") ? -5 : 0.5)
 }
 
 // Helper Function to verify API token
