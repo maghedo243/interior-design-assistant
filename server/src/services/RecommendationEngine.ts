@@ -1,4 +1,4 @@
-import { productCatalog } from './ProductCatalog.js'
+import { DatabaseHandler } from './DatabaseHandler.js';
 import { UserDataHandler } from './UserDataHandler.js'
 
 export class RecommendationEngine {
@@ -37,11 +37,81 @@ export class RecommendationEngine {
     //     );
     // }
 
-    public getPersonalizedFeed(userId: string) {
+    public static async getPersonalizedFeed(userId: string) {
+        
+
+        try {
+            const userData = await DatabaseHandler.getUserDataById(userId);
+
+            if (!userData) throw new Error("User not found");
+
+            const userVector = userData.vector;
+            const recentTags = userData.recentTags || [];
+
+            if (!userVector || userVector.length === 0) {
+                console.log(`Cold start for user: ${userId}. Serving default feed.`);
+                
+                return await DatabaseHandler.query("products","productListings",[{ $sample: { size: 30 } }]);
+            }
+            
+            const userSearchTerms = recentTags.join(" ");
+
+            // Product Search Pipeline
+            const pipeline = [
+                {
+                    $rankFusion: {
+                        input: {
+                            pipelines: {
+                                // Vector Search
+                                vectorSearchLeg: [
+                                    {
+                                        $vectorSearch: {
+                                            index: "vector_index", 
+                                            path: "description_embedding",
+                                            queryVector: userVector,
+                                            numCandidates: 100,
+                                            limit: 50
+                                        }
+                                    }
+                                ],
+                                // Keyword Search
+                                keywordSearchLeg: [
+                                    {
+                                        $search: {
+                                            index: "default",
+                                            text: {
+                                                query: userSearchTerms,
+                                                path: ["enriched_keywords", "item_name", "style"]
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                // Cap the final feed at 30
+                { $limit: 30 },
+                
+                // Clean the payload for the frontend
+                {
+                    $project: {
+                        description_embedding: 0, 
+                        
+                        // You can optionally project the internal RRF score to see the math in your console
+                        scoreDetails: { $meta: "searchScore" }
+                    }
+                }
+            ];
+
+            const feed = await DatabaseHandler.query("products","productListings",pipeline)
+            return feed;
+        } catch (error) {
+            console.error(`Failed to generate recommendation feed for user ${userId}:`, error);
+            throw error;
+        }
     }
 
 
 }
-
-export const recommendationEngine = new RecommendationEngine()
 
