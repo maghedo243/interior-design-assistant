@@ -86,13 +86,16 @@ export class RecommendationEngine {
                 { $project: { description_embedding: 0 } }
             ];
 
-            const [vectorResults, lexicalResults] = await Promise.all([
-                DatabaseHandler.query("products","productListings",vectorPipeline),
-                DatabaseHandler.query("products","productListings",lexicalPipeline)
-            ]);
+            const randomPipeline = [
+                { $sample: { size: 5 } }, 
+                 { $project: { description_embedding: 0 } }
+            ];
 
-            console.log(vectorResults)
-            console.log(lexicalResults)
+            const [vectorResults, lexicalResults, randomResults] = await Promise.all([
+                DatabaseHandler.query("products","productListings",vectorPipeline),
+                DatabaseHandler.query("products","productListings",lexicalPipeline),
+                DatabaseHandler.query("products","productListings",randomPipeline)
+            ]);
 
             // Start the Reciprocal Rank Fusion (RRF) Math
             const K = 60; // RRF smoothing constant
@@ -112,23 +115,31 @@ export class RecommendationEngine {
                 const idString = doc._id.toString();
 
                 if (fusedScores.has(idString)) {
-                    // Item was found in both searches! Stack the scores.
+                    // In both seraches
                     const existing = fusedScores.get(idString)!;
                     existing.score += rrfScore;
                 } else {
-                    // Item was only found in lexical search
+                    // Only in lexical search
                     fusedScores.set(idString, { score: rrfScore, doc: doc });
                 }
             });
 
-            // Sort by highest RRF score and get the top 30
-            const feed = Array.from(fusedScores.values())
+            // Sort by highest RRF score and get the top 25
+            const personalizedFeed = Array.from(fusedScores.values())
                 .sort((a, b) => b.score - a.score)
-                .slice(0, 30)
+                .slice(0, 25)
                 .map(item => item.doc);
+            
+            // Adding random salt to the personal feed for user exploration
+            const feed = [...personalizedFeed, ...randomResults]
 
-            console.log(feed)
-        
+            // Shuffle the array 
+            for (let i = feed.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                // Swap elements
+                [feed[i], feed[j]] = [feed[j], feed[i]]; 
+            }
+
             return feed;
         } catch (error) {
             console.error(`Failed to generate recommendation feed for user ${userId}:`, error);
