@@ -160,10 +160,10 @@ async function handleInteractionLogic(data: any){
 
     if (action === "like") {
         userVector = UserDataHandler.updateProfileVector(userVector, product.description_embedding, 0.15)
-        recentTags = [...itemTags, ...itemTags, recentTags]
+        recentTags = [...itemTags, ...itemTags, ...recentTags]
     } else if (action === "maybe") {
         userVector = UserDataHandler.updateProfileVector(userVector, product.description_embedding, 0.05)
-        recentTags = [...itemTags, recentTags]
+        recentTags = [...itemTags, ...recentTags]
     } else { // dislike
         recentTags = recentTags.filter(tag => !itemTags.includes(tag));
     }
