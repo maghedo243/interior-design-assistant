@@ -7,7 +7,7 @@ export default function TabLayout() {
             screenOptions={{
                 tabBarActiveTintColor: '#ffd33d',
             }}
-            initialRouteName="scan"
+            initialRouteName="about"
         >
             <Tabs.Screen
                 name="scan"

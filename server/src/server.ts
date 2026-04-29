@@ -1,7 +1,7 @@
 import express from 'express';
 import type { Request, Response } from 'express';
 import { productCatalog } from './services/ProductCatalog.js'
-import { userStore } from './services/UserDataHandler.js'
+import { UserDataHandler } from './services/UserDataHandler.js'
 import { recommendationEngine } from './services/RecommendationEngine.js'
 import cors from 'cors';
 import {AuthenticationHandler} from './services/AuthenticationHandler.js';
@@ -141,11 +141,32 @@ async function handleInteractionLogic(data: any){
     let userData = await DatabaseHandler.getUserDataById(userId)
     let product = await DatabaseHandler.getProductById(itemId)
 
-    if (product) {
-        console.log(product.description_embedding)
+    if (userData === undefined){
+        console.log(`Issue processing ${action} interaction for user: ${userId} on item: ${itemId}`)
+        return;
     }
-    console.log(typeof(product))
-    console.log("E")
+
+    let userVector = userData?.vector
+    let recentTags = userData?.recentTags || []
+    const itemTags = product.enriched_keywords || [];
+
+    if (action === "like") {
+        userVector = UserDataHandler.updateProfileVector(userVector, product.description_embedding, 0.15)
+        recentTags = [...itemTags, ...itemTags, recentTags]
+    } else if (action === "maybe") {
+        userVector = UserDataHandler.updateProfileVector(userVector, product.description_embedding, 0.05)
+        recentTags = [...itemTags, recentTags]
+    } else { // dislike
+        recentTags = recentTags.filter(tag => !itemTags.includes(tag));
+    }
+
+    // keep tags from infinitely growing
+    recentTags = recentTags.slice(0, 30);
+
+    userData.vector = userVector
+    userData.recentTags = recentTags
+
+    DatabaseHandler.updateUserData(userData)
 
     // Adds keywords to user with respective weights
     //userStore.updateUser(userId,product?.keywords || [],(action === "like") ? 1 : (action === "dislike") ? -5 : 0.5)
