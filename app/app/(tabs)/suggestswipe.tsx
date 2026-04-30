@@ -15,6 +15,7 @@ import DistanceFading from '@/components/DistanceFading';
 
 export default function SuggestScreen() {
     const [products, setProducts] = useState<Product[]>([])
+    // const [recentProducts, setRecentProducts] = useState<Product[]>([])
     const [productIndex, setProductIndex] = useState<number>(0)
     const [loading, setLoading] = useState<Boolean>(false);
     const { user } = useAuth();
@@ -32,8 +33,9 @@ export default function SuggestScreen() {
 
         await sendInteraction(user ? user.id : "3000",currentItem,interaction);
 
-        if(productIndex == 40) {
+        if(productIndex == 25) { // add new products to the feed
             loadFeed()
+        } else if(productIndex == 30) { // reset feed counter
             setProductIndex(0)
         }
 
@@ -45,13 +47,12 @@ export default function SuggestScreen() {
         try {
             const userId = user ? user.id : "3000";
 
-            const response = await getFeed(userId);
-            console.log(response)
-            const data = await response.json()
+            const productFeed = await getFeed(userId);
+            
+            if(productFeed === undefined) throw "products undefined";
 
-            console.log(`✅ Loaded ${data.length} products`);
-            console.log(data)
-            // ßsetProducts(data);
+            setProducts([...products.splice(25),...productFeed]);
+            console.log(products.length)
         } catch (error) {
             console.error("❌ Failed to load feed:", error);
             // Optional: Set an error state here to show a "Retry" button
@@ -81,7 +82,7 @@ export default function SuggestScreen() {
     }
 
     const currentProduct = products[productIndex]
-    console.log(`Current Product: ${currentProduct.name}`)
+    console.log(`Current Product: ${currentProduct.name.value}`)
 
     
     const triggerZones: triggerZone[] = [
@@ -92,7 +93,7 @@ export default function SuggestScreen() {
     return (
         <View style={styles.container}>
             <Draggable translateX={imageX} translateY={imageY} triggerZones={triggerZones} shouldRotate rotationFactor={55} style={styles.imageContainer}>
-                <ImageViewer imgSource={currentProduct.image_url}/>
+                <ImageViewer imgSource={currentProduct.image}/>
             </Draggable>
            
             {/* <Text style={styles.productName}>{currentProduct.name}</Text> */}
