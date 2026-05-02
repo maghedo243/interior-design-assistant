@@ -28,8 +28,6 @@ export class AuthenticationHandler {
         }
     }
 
-    // public static async init() {}
-
     public static async login(username: string, password: string){
         const qPipeline = [
             { $match: { username: username } },

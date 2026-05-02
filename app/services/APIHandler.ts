@@ -2,7 +2,7 @@ import {Product} from "@/types";
 import * as SecureStore from 'expo-secure-store';
 
 //API helpers
-const APIBase = "https://interior-design-assistant.onrender.com" //http://localhost:5000 //https://interior-design-assistant.onrender.com
+const APIBase = "https://interior-design-assistant.onrender.com"
 
 let getValidPhoto = function(urlsToCheck: String[], defaultValue="https://cdn.prod.website-files.com/687e8d1b96312cc631cafec7/68c490181202aaaa3643d239_601082646d6bf4446451b0a4_6002086f72b72717ae01d954_google-doc-error-message.png"){
     if(urlsToCheck.length === 0) return defaultValue
