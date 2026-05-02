@@ -33,9 +33,9 @@ export default function SuggestScreen() {
 
         await sendInteraction(user ? user.id : "3000",currentItem,interaction);
 
-        if(productIndex == 25) { // add new products to the feed
+        if(productIndex == 25) { // add new products to the feed before it ends
             loadFeed()
-        } else if(productIndex == 30) { // reset feed counter
+        } else if(productIndex == 30) { // reset feed counter at 30
             setProductIndex(0)
         }
 
