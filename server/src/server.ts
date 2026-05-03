@@ -1,4 +1,5 @@
 import express from 'express';
+import fileUpload, { type UploadedFile } from 'express-fileupload';
 import type { Request, Response } from 'express';
 import { UserDataHandler } from './services/UserDataHandler.js'
 import { RecommendationEngine } from './services/RecommendationEngine.js'
@@ -19,6 +20,11 @@ app.use(express.json());
 dotenv.config()
 await DatabaseHandler.init()
 
+app.use(fileUpload({
+    limits: { fileSize: 30 * 1024 * 1024 }, // Limit to 5MB
+    abortOnLimit: true, 
+    responseOnLimit: "File upload is too large. Max limit is 30MB.",
+}));
 
 // --- GET /api/feed ---
 app.get('/api/feed', async (req: Request, res: Response) => {
@@ -42,6 +48,66 @@ app.get('/api/feed', async (req: Request, res: Response) => {
     } catch (error){
         res.status(400).json({ error: "Failed to generate recommendation feed for user" });
         return;
+    }
+});
+
+// --- POST /api/recommendation ---
+app.post('/api/recommendation', async (req: Request, res: Response) => {
+    // Verify given token
+    if(!verifyToken(req)) {
+        return res.status(401).json({ message: 'Unauthorized API Call' });
+    }
+
+    if (!req.files || Object.keys(req.files).length === 0) {
+        return res.status(400).json({ error: 'No files were provided.' });
+    }
+
+    const userId = req.body.userId
+    const query = req.body.query
+    const filesInput = req.files.files
+
+    // Missing user from feed request
+    if (!userId) {
+        return res.status(400).json({ error: "Missing userId parameter" });
+    } else if (!query) {
+        return res.status(400).json({ error: "Missing query parameter" });
+    } else if (!filesInput) {
+        return res.status(400).json({ error: "Missing files parameter" });
+    }
+
+    const imageArray: UploadedFile[] = Array.isArray(filesInput) 
+        ? filesInput 
+        : [filesInput];
+
+    // Check if the files are actually images
+    const invalidFiles = imageArray.filter(file => !file.mimetype.startsWith('image/'));
+    if (invalidFiles.length > 0) {
+        return res.status(400).json({ 
+            error: 'Some files are not images.',
+            invalidCount: invalidFiles.length 
+        });
+    }
+
+    const processedData = imageArray.map((image) => {
+        console.log(`Processing ${image.name} (${image.size} bytes)`);
+        
+        return {
+            name: image.name,
+            size: image.size,
+            data: image.data
+        };
+    });
+
+    res.status(200).json({
+        message: `Successfully received ${imageArray.length} images in memory.`,
+        files: processedData
+    });
+    return;
+
+    try {
+        
+    } catch (error){
+        return res.status(400).json({ error: "Failed to generate recommendation feed for user" });
     }
 });
 
