@@ -1,8 +1,21 @@
+export interface LocalizedText {
+    source_lang: string;
+    translated: boolean;
+    value: string;
+}
+
+export interface LocalizedList {
+    source_lang: string;
+    translated: boolean;
+    value: Array<string>;
+}
+
 export interface Product {
-    id: string;
-    name: string;
-    price: number;
-    image_url: string;
+    _id: string;
+    name: LocalizedText;
+    image: string;
+    description: LocalizedText | null;
+    style: LocalizedText| null;
 }
 
 export interface triggerZone {

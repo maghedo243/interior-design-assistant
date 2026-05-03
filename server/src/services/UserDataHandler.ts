@@ -2,10 +2,6 @@ import type { UserData } from "../types/DBDocuments.js";
 import { DatabaseHandler } from "./DatabaseHandler.js";
 
 export class UserDataHandler {
-    public static updateUser(user: UserData) {
-        // Push to MongoDB
-    }
-
     public static updateProfileVector(userVector: number[] | undefined, itemVector: number[], weight: number = 0.15): number[] {
         // The Cold Start
         if (!userVector || userVector.length === 0) {
