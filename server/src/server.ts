@@ -85,6 +85,7 @@ app.post('/api/recommendation', async (req: Request, res: Response) => {
         
         return {
             name: image.name,
+            type: image.mimetype,
             size: image.size,
             data: image.data
         };
