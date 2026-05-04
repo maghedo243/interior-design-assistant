@@ -112,7 +112,6 @@ export class RecommendationEngine {
     }
 
     public static async getPersonalizedRecommentations(userId: string, query: string, images: any){
-        console.log(images[0].data)
         const base64Images = images.map((image: any) => ({
             ...image,
             data: image.data.toString('base64')
@@ -148,7 +147,8 @@ export class RecommendationEngine {
 
             console.log(result.text)
         } catch (error) {
-
+            console.error(`Failed to generate recommendations for user ${userId}:`, error);
+            throw error;
         }
 
         // Get user vector + keywords (DONE)
