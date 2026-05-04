@@ -130,10 +130,10 @@ export class RecommendationEngine {
             // Initialzie Gemini
             const ai = new GoogleGenAI({});
 
-            const imageParts = base64Images.map((base64String: string, index: number) => ({
+            const imageParts = images.map((image: any) => ({
                 inlineData: {
-                    mimeType: images[index].type,
-                    data: base64String,
+                    mimeType: image.type,
+                    data: image.data.toString('base64'),
                 }
             }));
 
