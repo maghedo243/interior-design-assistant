@@ -1,18 +1,28 @@
 import {Product} from "@/types";
+import { Image } from "react-native";
 import * as SecureStore from 'expo-secure-store';
 
 //API helpers
 const APIBase = "https://interior-design-assistant.onrender.com"
 
-let getValidPhoto = function(urlsToCheck: String[], defaultValue="https://cdn.prod.website-files.com/687e8d1b96312cc631cafec7/68c490181202aaaa3643d239_601082646d6bf4446451b0a4_6002086f72b72717ae01d954_google-doc-error-message.png"){
-    if(urlsToCheck.length === 0) return defaultValue
-    var image = new Image();
-    image.src = `https://m.media-amazon.com/images/I/${urlsToCheck[0]}.jpg`;
-    if (image.width == 0) {
-        return getValidPhoto(urlsToCheck.slice(1),defaultValue);
-    } else {
-        return image.src;
+let getValidPhoto = async function(urlsToCheck: String[], defaultValue="https://cdn.prod.website-files.com/687e8d1b96312cc631cafec7/68c490181202aaaa3643d239_601082646d6bf4446451b0a4_6002086f72b72717ae01d954_google-doc-error-message.png"){
+    for (const id of urlsToCheck) {
+        const url = `https://m.media-amazon.com/images/I/${id}.jpg`;
+        
+        const isValid = await new Promise((resolve) => {
+            Image.getSize(
+                url,
+                () => resolve(true),
+                () => resolve(false)
+            );
+        });
+
+        if (isValid) {
+            return url; 
+        }
     }
+    
+    return defaultValue;
 }
 
 //API base call
@@ -80,22 +90,46 @@ export const getFeed = async(user: any) => {
         }
     }
 
-    const response = await callAPI<any>(APIBase + `/api/feed?userId=${user}`, options)
+    const response = await callAPI<any>(APIBase + `/api/feed?userId=${user.id}`, options)
     const feedResults = await response.json()
 
     console.log(`✅ Loaded ${feedResults.length} products`);
 
     if(feedResults === undefined || feedResults.length === 0) return;
 
-    const formattedFeed: Product[] = feedResults.map((item: any) => ({
+    const formattedFeed: Product[] = await Promise.all(
+    feedResults.map(async (item: any) => ({
         _id: item._id,
         name: item.item_name,
-        image: getValidPhoto([item.main_image_id,...item.other_image_id]),
+        image: await getValidPhoto([item.main_image_id, ...(item.other_image_id || [])]),
         description: item.product_description,
         style: item.style
-    }));
+    }))
+);
 
     return formattedFeed;
+}
+
+export const getRecommendations = async(user: any, query: string, files: (Buffer | File)[]) => {
+    const token = await SecureStore.getItemAsync('authToken');
+
+    const formData = new FormData()
+
+    formData.append('userId', user.id)
+    formData.append('query', query)
+
+    files.forEach((file) => {
+        formData.append('files', file as any);
+    });
+
+    let options = {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+        },
+        body: formData
+    }
+    return await callAPI<any>(APIBase + `/api/recommendation`, options)
 }
 
 export const userLogin = async(username: string, password: string) => {
