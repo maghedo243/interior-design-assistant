@@ -1,5 +1,6 @@
 import { DatabaseHandler } from './DatabaseHandler.js';
-import { UserDataHandler } from './UserDataHandler.js'
+import { UserDataHandler } from './UserDataHandler.js';
+import { GoogleGenAI } from "@google/genai";
 
 export class RecommendationEngine {
     public static async getPersonalizedFeed(userId: string) {
@@ -112,12 +113,53 @@ export class RecommendationEngine {
 
     public static async getPersonalizedRecommentations(userId: string, query: string, images: any){
         console.log(images[0].data)
-        const formattedImages = images.map((image: any) => ({
+        const base64Images = images.map((image: any) => ({
             ...image,
             data: image.data.toString('base64')
         }));
 
-        console.log(formattedImages[0].data)
+        try {
+            const userData = await DatabaseHandler.getUserDataById(userId);
+
+            if (!userData) throw new Error("User not found");
+
+            const userVector = userData.vector;
+            const recentTags = userData.recentTags || [];
+
+            // TODO: What happens when they don't have a vector
+
+            // Initialzie Gemini
+            const ai = new GoogleGenAI({});
+
+            const imageParts = base64Images.map((base64String: string, index: number) => ({
+                inlineData: {
+                    mimeType: images[index].type,
+                    data: base64String,
+                }
+            }));
+
+            const result = await ai.models.generateContent({
+                model: "gemini-3-flash-preview", 
+                contents: [
+                    ...imageParts, // Spreads all your image objects here
+                    { text: "Caption these images and tell me what they have in common." }
+                ],
+            });
+
+            console.log(result.text)
+        } catch (error) {
+
+        }
+
+        // Get user vector + keywords (DONE)
+        // Get query vector + keywords
+            // Get gemini to make vector sentence and keywords
+        // Get room vector + keywords
+            // Get gemini to make vector sentence and key words
+
+        // Compare vectors and keywords
+        // Get top 40
+        // Have gemini sift through top 40 to grab 10-15 items
     }
 }
 
