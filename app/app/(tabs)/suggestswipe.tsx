@@ -1,11 +1,12 @@
 import {View, StyleSheet, ActivityIndicator, Text, useWindowDimensions} from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 
 import ImageViewer from '@/components/ImageViewer';
 
 import {useEffect, useState} from "react";
 import { useSharedValue } from 'react-native-reanimated';
 
-import { sendInteraction, getFeed } from '@/services/APIHandler';
+import { sendInteraction, getFeed, getRecommendations } from '@/services/APIHandler';
 import { useAuth } from "@/context/AuthContext";
 import { Product, triggerZone } from "@/types";
 import Draggable from '@/components/Draggable';
@@ -45,14 +46,26 @@ export default function SuggestScreen() {
     const loadFeed = async () => {
         setLoading(true)
         try {
-            const userId = user ? user.id : "3000";
-
-            const productFeed = await getFeed(userId);
+            const productFeed = await getFeed(user);
             
             if(productFeed === undefined) throw "products undefined";
 
             setProducts([...products.splice(25),...productFeed]);
             console.log(products.length)
+
+            const result = await ImagePicker.launchImageLibraryAsync();
+
+            if(!result.canceled) {
+                const imageFromPicker = {
+                    uri: result.assets[0].uri,
+                    name: 'upload.jpg',
+                    type: 'image/jpeg',
+                };
+
+                const recommend = await getRecommendations(user, "Post-modern gothic", [imageFromPicker as any])
+                console.log(recommend)
+            }
+            
         } catch (error) {
             console.error("❌ Failed to load feed:", error);
             // Optional: Set an error state here to show a "Retry" button
