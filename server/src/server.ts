@@ -58,6 +58,7 @@ app.post('/api/recommendation', async (req: Request, res: Response) => {
         return res.status(401).json({ message: 'Unauthorized API Call' });
     }
 
+    // Verifies that files are present
     if (!req.files || Object.keys(req.files).length === 0) {
         return res.status(400).json({ error: 'No files were provided.' });
     }
@@ -67,25 +68,16 @@ app.post('/api/recommendation', async (req: Request, res: Response) => {
     const filesInput = req.files.files
 
     // Missing user from feed request
-    if (!userId) {
-        return res.status(400).json({ error: "Missing userId parameter" });
-    } else if (!query) {
-        return res.status(400).json({ error: "Missing query parameter" });
-    } else if (!filesInput) {
-        return res.status(400).json({ error: "Missing files parameter" });
-    }
+    if (!userId) return res.status(400).json({ error: "Missing userId parameter" });
+    else if (!query) return res.status(400).json({ error: "Missing query parameter" });
+    else if (!filesInput) return res.status(400).json({ error: "Missing files parameter" });
 
-    const imageArray: UploadedFile[] = Array.isArray(filesInput) 
-        ? filesInput 
-        : [filesInput];
+    const imageArray: UploadedFile[] = Array.isArray(filesInput) ? filesInput : [filesInput];
 
-    // Check if the files are actually images
+    // Check if all files are actually images
     const invalidFiles = imageArray.filter(file => !file.mimetype.startsWith('image/'));
     if (invalidFiles.length > 0) {
-        return res.status(400).json({ 
-            error: 'Some files are not images.',
-            invalidCount: invalidFiles.length 
-        });
+        return res.status(400).json({ error: 'Some files are not images.', invalidCount: invalidFiles.length });
     }
 
     const processedData = imageArray.map((image) => {
@@ -98,14 +90,10 @@ app.post('/api/recommendation', async (req: Request, res: Response) => {
         };
     });
 
-    res.status(200).json({
-        message: `Successfully received ${imageArray.length} images in memory.`,
-        files: processedData
-    });
-    return;
-
     try {
-        
+        await RecommendationEngine.getPersonalizedRecommentations(userId, query, processedData)
+
+        return res.status(200).json({ message: 'Markiplier E' });
     } catch (error){
         return res.status(400).json({ error: "Failed to generate recommendation feed for user" });
     }

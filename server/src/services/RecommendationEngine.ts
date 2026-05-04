@@ -110,6 +110,14 @@ export class RecommendationEngine {
         }
     }
 
+    public static async getPersonalizedRecommentations(userId: string, query: string, images: any){
+        console.log(images[0].data)
+        const formattedImages = images.map((image: any) => ({
+            ...image,
+            data: image.data.toString('base64')
+        }));
 
+        console.log(images[0].data)
+    }
 }
 
