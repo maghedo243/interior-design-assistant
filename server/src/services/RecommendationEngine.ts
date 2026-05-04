@@ -117,7 +117,7 @@ export class RecommendationEngine {
             data: image.data.toString('base64')
         }));
 
-        console.log(images[0].data)
+        console.log(formattedImages[0].data)
     }
 }
 
