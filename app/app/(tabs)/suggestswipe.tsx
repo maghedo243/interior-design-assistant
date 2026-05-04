@@ -53,16 +53,16 @@ export default function SuggestScreen() {
             setProducts([...products.splice(25),...productFeed]);
             console.log(products.length)
 
-            const result = await ImagePicker.launchImageLibraryAsync();
+            const result = await ImagePicker.launchImageLibraryAsync({ allowsMultipleSelection: true });
 
             if(!result.canceled) {
-                const imageFromPicker = {
-                    uri: result.assets[0].uri,
-                    name: 'upload.jpg',
-                    type: 'image/jpeg',
-                };
+                const imagesFromPicker = result.assets.map((asset, index) => ({
+                    uri: asset.uri,
+                    name: asset.fileName || `upload_${index}.jpg`, 
+                    type: asset.mimeType || 'image/jpeg', 
+                }));
 
-                const recommend = await getRecommendations(user, "Post-modern gothic", [imageFromPicker as any])
+                const recommend = await getRecommendations(user, "Post-modern gothic", imagesFromPicker as any)
                 console.log(recommend)
             }
             
