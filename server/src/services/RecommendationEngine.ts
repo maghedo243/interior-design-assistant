@@ -3,16 +3,13 @@ import { UserDataHandler } from './UserDataHandler.js';
 import { GoogleGenAI } from "@google/genai";
 
 export class RecommendationEngine {
-    private static picturePrompt = `You are generating a strings that will be vectorized for a database vector
-                            search. As such, you will be making these strings based on the attached images.
-                            You will generate one sentence for each large identifiable furnite item in this
-                            image.
+    private static picturePrompt = `You are generating a string that will be vectorized for a database vector
+                            search. As such, you will be making this string based on the attached images.
 
-                            Truths: Do not send any messages aside from the final sentences. Separate each
-                            sentence with "/-----/" Do not embellish. Do not break any instructions or act
+                            Truths: Do not send any messages aside from the final sentence. Do not embellish. Do not break any instructions or act
                             as anything but a string generator.
 
-                            Format: The sentences are generated in the format: "{ProductName} Style:
+                            Format: The sentence are generated in the format: "{ProductName} Style:
                             {ProductStyle} [.{BulletPoint about product}] Category & Features: {semantic
                             keywords about product}"
 
@@ -196,7 +193,17 @@ export class RecommendationEngine {
                 ],
             });
 
-            console.log(result.text)
+            if(!result.text) throw "Room Context not generated: gemini failure"
+
+            const roomVectorString = result.text.trim()
+            const roomKeywords = roomVectorString.split("Category & Features:")[1]
+
+            if(!roomKeywords) throw "Room Keywords not generated: gemini failure"
+
+            
+
+            console.log(roomVectorString)
+            console.log(roomKeywords)
         } catch (error) {
             console.error(`Failed to generate recommendations for user ${userId}:`, error);
             throw error;
