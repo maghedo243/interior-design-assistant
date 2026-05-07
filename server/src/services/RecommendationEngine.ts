@@ -184,13 +184,11 @@ export class RecommendationEngine {
 
             if(!result.text) throw "Room Context not generated: gemini failure"
 
-            
             const roomVectorString = result.text.trim()
             const roomKeywords = roomVectorString.split("Category & Features:")[1]
 
             if(!roomKeywords) throw "Room Keywords not generated: gemini failure"
 
-            
 
             console.log(roomVectorString)
             console.log(roomKeywords)
