@@ -19,14 +19,20 @@ function RootLayoutNav() {
                 if (pathname !== '/') router.replace('/');
                 return;
             }
-            if (isAuthenticated && !newUser && pathname !== '/about') {
-                router.replace('/about');
-            }
-            else if (!isAuthenticated && pathname !== '/login' && pathname !== '/' && pathname !== '/about') {
-                router.replace('/login');
-            }
-            else if (isAuthenticated && newUser && pathname !== '/interests') {
-                router.replace('/interests');
+            // LEARN IDA TODO
+            if (!isAuthenticated) {
+                if (pathname !== '/login') {
+                    router.replace('/login')
+                    return;
+                }
+            } else {
+                if (newUser && pathname !== "/interests") {
+                    router.replace('/interests');
+                    return;
+                } else {
+                    router.replace('/(tabs)/dashboard')
+                }
+                // if they are authenticated and not a new user
             }
         }
     }, [isAuthenticated, loading, newUser, homePage]); //Called when any these properties change
@@ -62,11 +68,9 @@ export default function RootLayout() {
         <GestureHandlerRootView style={{ flex: 1 }}>
             <SafeAreaProvider>
                 <AuthProvider>
-                <RootLayoutNav />
-            </AuthProvider>
+                    <RootLayoutNav />
+                </AuthProvider>
             </SafeAreaProvider>
-
-
         </GestureHandlerRootView>
     );
 }
