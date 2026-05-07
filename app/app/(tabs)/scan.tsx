@@ -27,6 +27,7 @@ export default function ScanScreen() {
     const dot1Scale = useRef(new Animated.Value(1)).current;
     const dot2Scale = useRef(new Animated.Value(1)).current;
     const dot3Scale = useRef(new Animated.Value(1)).current;
+    const [results, setResults] = useState<any[]>([]);
 
     useEffect(() => {
         if (loading) {
@@ -102,6 +103,7 @@ export default function ScanScreen() {
     };
 
     const pickImage = async () => {
+
         const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
             quality: 1,
@@ -110,6 +112,49 @@ export default function ScanScreen() {
         if (!result.canceled) {
             const uri = result.assets[0].uri;
             setPhotos(prev => [...prev, uri]);
+        }
+
+        setLoading(true);
+
+        try {
+            const formData = new FormData();
+
+            photos.forEach((uri, index) => {
+                formData.append("images", {
+                    uri,
+                    name: `photo-${index}.jpg`,
+                    type: "image/jpeg",
+                } as any);
+            });
+
+            const response = await fetch("http://192.168.1.165:5000/api/analyze-furniture", {
+                method: "POST",
+                body: formData,
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                console.error("Analyze error:", data);
+                alert("Failed to analyze photos.");
+                return;
+            }
+
+            console.log("Furniture analysis:", data);
+
+             setResults(data.results)
+        } catch (error) {
+            console.error("Submit error:", error);
+            alert("Something went wrong while submitting photos.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleSubmit = async () => {
+        if (photos.length === 0) {
+            alert("Please add at least one photo.");
+            return;
         }
     };
 
@@ -201,6 +246,38 @@ export default function ScanScreen() {
         );
     };
 
+    const renderResults = () => {
+        if (!results || results.length === 0) {
+            return null;
+        }
+
+        return (
+            <View style={styles.resultsContainer}>
+                {results.map((imageResult, imageIndex) => (
+                    <View key={imageIndex} style={styles.resultCard}>
+                        <Text style={styles.resultTitle}>{imageResult.fileName}</Text>
+
+                        {imageResult.furniture.map((item: any, itemIndex: number) => (
+                            <View key={itemIndex} style={styles.furnitureItem}>
+                                <Text style={styles.furnitureHeading}>
+                                    {item.category} → {item.color} {item.style} {item.category}
+                                </Text>
+
+                                <Text style={styles.furnitureDescription}>
+                                    {item.description}
+                                </Text>
+
+                                <Text style={styles.confidenceText}>
+                                    Confidence: {Math.round(item.confidence * 100)}%
+                                </Text>
+                            </View>
+                        ))}
+                    </View>
+                ))}
+            </View>
+        );
+    };
+
     // ============ MAIN RENDER ============
     return (
         <View style={styles.container}>
@@ -222,13 +299,7 @@ export default function ScanScreen() {
                     {/* Show submit button when we have 3 photos */}
                     {photos.length === 3 && !loading && (
                         <Pressable
-                            onPress={() => {
-                                setLoading(true);
-                                setTimeout(() => {
-                                    console.log("Submit pressed");
-                                    setLoading(false);
-                                }, 2000); // simulate loading
-                            }}
+                            onPress={handleSubmit}
                             style={styles.submitButton}
                         >
                             <Text style={styles.submitButtonText}>Submit</Text>
@@ -244,8 +315,9 @@ export default function ScanScreen() {
                     )}
 
                     {/* Always show photo strip */}
-                    {renderPhotoStrip()}
-                </View>
+                    {renderResults()}
+
+                    {renderPhotoStrip()}                </View>
             )}
         </View>
     );
@@ -384,5 +456,44 @@ const styles = StyleSheet.create({
         borderRadius: 7,
         backgroundColor: "white", // matches your Submit button aesthetic
     },
+//========RENDERING STYLES================
+    resultsContainer: {
+        width: "90%",
+        marginTop: 20,
+    },
 
+    resultCard: {
+        backgroundColor: "white",
+        borderRadius: 12,
+        padding: 14,
+        marginBottom: 12,
+    },
+
+    resultTitle: {
+        fontSize: 16,
+        fontWeight: "700",
+        marginBottom: 8,
+    },
+
+    furnitureItem: {
+        marginBottom: 10,
+    },
+
+    furnitureHeading: {
+        fontSize: 15,
+        fontWeight: "700",
+        color: "#000",
+    },
+
+    furnitureDescription: {
+        fontSize: 14,
+        color: "#333",
+        marginTop: 4,
+    },
+
+    confidenceText: {
+        fontSize: 13,
+        color: "#666",
+        marginTop: 4,
+    },
 });

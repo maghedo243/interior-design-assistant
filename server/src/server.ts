@@ -5,6 +5,8 @@ import { userStore } from './services/UserDataHandler.js'
 import { recommendationEngine } from './services/RecommendationEngine.js'
 import cors from 'cors';
 import {AuthenticationHandler} from './services/AuthenticationHandler.js';
+import multer from "multer";
+import { GoogleGenAI } from "@google/genai";
 import dotenv from 'dotenv';
 import { DatabaseHandler } from './services/DatabaseHandler.js';
 import { ObjectId } from 'mongodb';
@@ -151,3 +153,137 @@ function verifyToken(req: Request) {
 
     return verify;
 }
+
+
+//wtf is this
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: {
+        fileSize: 10 * 1024 * 1024, // 10MB per image
+        files: 3,
+    },
+});
+
+const ai = new GoogleGenAI({
+    apiKey: process.env.GEMNI_API_KEY!,
+});
+
+//rr???
+type FurnitureResult = {
+    object: string;
+    category: string;
+    style: string;
+    color: string;
+    description: string;
+    confidence: number;
+};
+
+const furniturePrompt = `
+You are an interior design and furniture recognition assistant.
+
+Analyze this image and identify all visible furniture objects.
+
+For each furniture object, return:
+- object: short object name
+- category: normalized category from this list:
+Chair, Loveseat, Sofa, Bed, Lamp, Coffee Table, Dining Table, Desk, Dresser, Ottoman, Shelf, Cabinet, Nightstand, Rug, Mirror, Other
+- style: likely design style from this list:
+Modern, Contemporary, Mid-Century Modern, Rustic, Traditional, Industrial, Art Deco, American Colonial, Scandinavian, Transitional, Unknown
+- color: dominant visible color
+- description: short natural language description
+- confidence: number from 0 to 1
+
+Return ONLY valid JSON.
+
+Example:
+[
+  {
+    "object": "Yellow sofa",
+    "category": "Sofa",
+    "style": "Mid-Century Modern",
+    "color": "Yellow",
+    "description": "A low-profile yellow sofa with clean lines and tapered legs.",
+    "confidence": 0.82
+  }
+]
+`;
+
+function safeJsonParse(text: string): FurnitureResult[] {
+    const cleaned = text
+        .replace(/```json/g, "")
+        .replace(/```/g, "")
+        .trim();
+
+    try {
+        return JSON.parse(cleaned);
+    } catch {
+        console.error("Gemini returned non-JSON:", text);
+        return [];
+    }
+}
+
+//--- POST /api/analyze-furniture ---
+app.post(
+    "/api/analyze-furniture",
+    upload.array("images", 3),
+    async (req, res) => {
+        try {
+            const files = req.files as Express.Multer.File[];
+
+            if (!files || files.length === 0) {
+                return res.status(400).json({
+                    error: "No images uploaded.",
+                });
+            }
+
+            const results = [];
+
+            for (const file of files) {
+                const base64Image = file.buffer.toString("base64");
+
+                const response = await ai.models.generateContent({
+                    model: "gemini-2.5-flash",
+                    contents: [
+                        {
+                            role: "user",
+                            parts: [
+                                { text: furniturePrompt },
+                                {
+                                    inlineData: {
+                                        mimeType: file.mimetype,
+                                        data: base64Image,
+                                    },
+                                },
+                            ],
+                        },
+                    ],
+                });
+
+                const text = response.text ?? "";
+                const furniture = safeJsonParse(text);
+
+                results.push({
+                    fileName: file.originalname,
+                    furniture,
+                });
+            }
+
+            return res.json({
+                success: true,
+                results,
+            });
+        } catch (error) {
+            console.error("Furniture analysis error:", error);
+
+            return res.status(500).json({
+                error: "Failed to analyze furniture image.",
+            });
+        }
+    }
+);
+
+
+
+
+
+
