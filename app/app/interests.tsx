@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   View,
   Text,
@@ -7,7 +8,6 @@ import {
   ScrollView,
   Alert,
   TextInput,
-  SafeAreaView,
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
@@ -20,6 +20,11 @@ import LearnIda from '@/components/LearnIda';
 
 const BackgroundImg = require('@/assets/images/BackgroundHome.ida.png');
 
+// TODO: Make the form repeatable
+
+// TODO: Make the form repeatable
+
+// Unified Step Structure
 const steps = [
   { id: 'style', title: 'Architectural Style', subtitle: 'Which style defines you best?', type: 'choice', options: ['Minimalist', 'Bohemian', 'Scandinavian', 'Industrial', 'Mid-Century Modern', 'Art Deco', 'Coastal'] },
   { id: 'space', title: 'Your Space', subtitle: 'What kind of space are we working with?', type: 'choice', options: ['Small Apartment', 'Large Room', 'Open Concept', 'Bedroom', 'Office', 'Studio'] },

@@ -1,56 +1,168 @@
-import React from 'react';
-import { 
-  View, 
-  Platform, 
-  StyleSheet, 
-  Text, 
-  TouchableOpacity, 
-  ImageBackground 
-} from 'react-native';
-import { useRouter } from 'expo-router'; 
-import { useAuth } from '@/context/AuthContext';
-import ImageViewer from '@/components/ImageViewer';
+import React, { useState } from 'react';
+import { View, Text, TextInput, StyleSheet } from 'react-native';
+import { useAuth } from "@/context/AuthContext";
+import Button from '@/components/Button';
 import LearnIda from '@/components/LearnIda';
-
 const BackgroundImg = require('@/assets/images/BackgroundHome.ida.png');
-const PlaceholderImage = require('@/assets/images/gifHelp.gif');
 
-export default function HomeScreen() {
-  const { logout } = useAuth();
-  const router = useRouter(); 
 
-  const handlePress = () => {
-    // This looks for app/login.tsx
-    router.push('/login'); 
-  };
 
-  return (
-    <ImageBackground 
-      source={BackgroundImg} 
-      style={styles.container} 
-      resizeMode="cover"
-    >
-      <View style={styles.overlay}>
-        
-        <LearnIda />
+export default function LoginScreen() {
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const [message, setMessage] = useState('');
+    const [isLogin, setIsLogin] = useState(true);
+    const { login, loading } = useAuth();
 
-        <View style={styles.content}>
-          <View style={styles.imageContainer}>
-            <ImageViewer imgSource={PlaceholderImage} />
-          </View> 
+    //Swap from login to signup
+    const toggleForm = () => {
+        setIsLogin(!isLogin);
+        setMessage('');
+    };
 
-          <TouchableOpacity 
-            style={styles.loginButton} 
-            activeOpacity={0.8}
-            onPress={handlePress} 
-          >
-            <Text style={styles.loginButtonText}>Start Designing</Text>
-          </TouchableOpacity>
+    const handleLogin = async () => {
+        try {
+            const data = await login(username, password, "login");
+
+            //Invalid login entry
+            if (!data.token) {
+                switch(data.message) {
+                    case "password":
+                        setMessage("Incorrect Password")
+                        break;
+                    case "user":
+                        setMessage("Incorrect Username")
+                        break;
+                    default:
+                        setMessage("Login Error")
+                        break;
+                }
+                return;
+            }
+
+            // Success
+            setMessage('Login successful!');
+        } catch (error) {
+            let errorMessage = "Failed to login";
+            if (error instanceof Error) {
+                errorMessage = error.message;
+            }
+            console.error(errorMessage);
+            setMessage('Network error');
+        }
+    };
+
+    const handleSignup = async () => {
+        try {
+            //Password validation
+            if (password.length < 8) {
+                setMessage('Password must be at least 8 characters long.');
+                return;
+            } else if (!/[A-Z]/.test(password)) {
+                setMessage('Password must contain at least one uppercase letter.');
+                return;
+            } else if (!/[a-z]/.test(password)) {
+                setMessage('Password must contain at least one lowercase letter.');
+                return;
+            } else if (!/\d/.test(password)) {
+                setMessage('Password must contain at least one digit.');
+                return;
+            } else if (!/[@#$%^&*!.,]/.test(password)) {
+                setMessage('Password must contain at least one special character.');
+                return;
+            }
+
+            const data = await login(username, password, "signup");
+
+            //Invalid signup entry
+            if (!data.token) {
+                if(data.message === "exists") {
+                    setMessage("Username taken")
+                }
+                return;
+            }
+
+
+            // Success
+            setMessage('Signup successful!');
+        } catch (error) {
+            let errorMessage = "Failed to do signup";
+            if (error instanceof Error) {
+                errorMessage = error.message;
+            }
+            console.error(errorMessage);
+            setMessage('Network error');
+        }
+    };
+
+    return (
+        <View style={styles.container}>
+           {/* Header container to position the LearnIda pill top-left */}
+                          <View style={styles.header}>
+                            <LearnIda />
+                          </View>
+            {isLogin ?
+                (
+                    <>
+                        <Text style={styles.title}>Login</Text>
+
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Username"
+                            value={username}
+                            onChangeText={setUsername}
+                        />
+
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Password"
+                            secureTextEntry
+                            value={password}
+                            onChangeText={setPassword}
+                        />
+
+                        <View style={styles.buttonWrapper}>
+                            <Button label="Login" onPress={handleLogin} textStyle={ styles.buttonText }/>
+                        </View>
+                        <View style={styles.buttonWrapper}>
+                            <Button label="Create an account" onPress={toggleForm} textStyle={ styles.buttonText }/>
+                        </View>
+
+                        {message ? <Text style={styles.message}>{message}</Text> : null}
+                    </>
+                ) :
+                (
+                    <>
+                        <Text style={styles.title}>Signup</Text>
+
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Username"
+                            value={username}
+                            onChangeText={setUsername}
+                        />
+
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Password"
+                            secureTextEntry
+                            value={password}
+                            onChangeText={setPassword}
+                        />
+
+                        <View style={styles.buttonWrapper}>
+                            <Button label="Signup" onPress={handleSignup} textStyle={ styles.buttonText } />
+                        </View>
+                        <View style={styles.buttonWrapper}>
+                            <Button label="Have an account?" onPress={toggleForm} textStyle={ styles.buttonText } />
+                        </View>
+
+                        {message ? <Text style={styles.message}>{message}</Text> : null}
+                    </>
+                )
+            }
         </View>
-
-      </View>
-    </ImageBackground>
-  );
+    );
 }
 
 const styles = StyleSheet.create({
@@ -60,39 +172,41 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start', // Keeps LearnIda on the left
     
   },
-  container: {
-    flex: 1,
-  },
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.2)', 
-  },
-  content: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingBottom: 40,
-  },
-  imageContainer: {
-    marginBottom: 30, 
-  }, 
-  loginButton: {
-    backgroundColor: '#7e1c2e', 
-    paddingVertical: 15,
-    paddingHorizontal: 40,
-    borderRadius: 30, 
-    alignItems: 'center',
-    justifyContent: 'center',
-    elevation: 3, 
-    shadowColor: '#ac76a4', 
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-  },
-  loginButtonText: {
-    color: '#ac76a4', 
-    fontSize: 24,
-    fontWeight: 'bold',
-    fontFamily: Platform.OS === 'ios' ? 'Snell Roundhand' : 'serif', 
-  }
+    container: {
+        flex: 1,
+        justifyContent: 'center',
+        padding: 20,
+        backgroundColor: '#4A2338',
+    },
+    title: {
+        fontSize: 32,
+        marginBottom: 20,
+        textAlign: 'center',
+        fontWeight: '600',
+        fontFamily: 'ui-serif',
+        color: '#977fd4',
+    },
+    input: {
+        borderColor: '#977fd4',
+        padding: 10,
+        borderBottomWidth: 6,
+        marginBottom: 15,
+        fontWeight: 800,
+        fontSize: 20,
+        textAlign: 'center',
+        color: '#977fd4',
+    },
+    message: {
+        marginTop: 15,
+        textAlign: 'center',
+        fontSize: 16,
+        color: '#fff',
+    },
+    buttonText: {
+        color: '#977fd4', 
+        fontSize: 20, 
+    },
+    buttonWrapper: {
+        margin: 10,
+    }
 });

@@ -3,23 +3,28 @@ import {
   StyleSheet, 
   ActivityIndicator, 
   Text, 
-  useWindowDimensions, 
-  SafeAreaView,
   ImageBackground, 
 
   Platform //Platform import
-} from 'react-native';
+, useWindowDimensions} from 'react-native';
 import ImageViewer from '@/components/ImageViewer';
-import { useEffect, useState } from "react";
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+
+import {useEffect, useState} from "react";
 import { useSharedValue } from 'react-native-reanimated';
+
 import { sendInteraction, getFeed } from '@/services/APIHandler';
 import { useAuth } from "@/context/AuthContext";
 import { Product, triggerZone } from "@/types";
 import Draggable from '@/components/Draggable';
+import DistanceFading from '@/components/DistanceFading';
 import LearnIda from '@/components/LearnIda';
 
 
+
 const BackgroundImg = require('@/assets/images/BackgroundHome.ida.png');
+// TODO: Add a "maybe"
 
 export default function SuggestScreen() {
     const [products, setProducts] = useState<Product[]>([]);
@@ -33,13 +38,12 @@ export default function SuggestScreen() {
     const imageY = useSharedValue(0);
 
     const scroll = async (interaction: 'like' | 'dislike' | 'maybe') => {
-        const currentItem = products[productIndex];
-        
-        // Update index first for immediate UI feedback
-        setProductIndex(prev => prev + 1);
+        setLoading(true)
 
-        // Send interaction in the background
-        await sendInteraction(user ? user.id : "3000", currentItem, interaction);
+        const currentItem = products[productIndex]
+        setProductIndex(productIndex+1)
+
+        await sendInteraction(user ? user.id : "3000",currentItem,interaction);
 
         if (productIndex >= 40) {
             loadFeed();
@@ -51,6 +55,7 @@ export default function SuggestScreen() {
         setLoading(true);
         try {
             const userId = user ? user.id : "3000";
+
             const response = await getFeed(userId);
             const data = await response.json();
             setProducts(data);
@@ -86,12 +91,14 @@ export default function SuggestScreen() {
         );
     }
 
-    const currentProduct = products[productIndex];
+    const currentProduct = products[productIndex]
+    console.log(`Current Product: ${currentProduct.name}`)
 
+    
     const triggerZones: triggerZone[] = [
-        { x: 0, y: 0, width: width * 0.10, height: height, onTrigger: () => scroll("dislike") },
-        { x: width * 0.9, y: 0, width: width * 0.10, height: height, onTrigger: () => scroll("like") }
-    ];
+        {x: 0, y: 0, width: width * 0.10, height: height, onTrigger: () => scroll("dislike")},
+        {x: width * 0.9, y: 0, width: width * 0.10, height: height, onTrigger: () => scroll("like")}
+    ]
 
     return (
         <ImageBackground source={BackgroundImg} style={styles.container} resizeMode="cover">

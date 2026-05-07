@@ -1,4 +1,5 @@
 import React from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { 
   View, 
   Platform, 
@@ -6,7 +7,8 @@ import {
   Text, 
   TouchableOpacity, 
   ImageBackground,
-  SafeAreaView 
+  
+ 
 } from 'react-native';
 import { useAuth } from '@/context/AuthContext';
 import ImageViewer from '@/components/ImageViewer';
@@ -18,8 +20,11 @@ const BackgroundImg = require('@/assets/images/BackgroundHome.ida.png');
 const PlaceholderImage = require('@/assets/images/gifHelp.gif');
 
 export default function HomeScreen() {
-  const { logout } = useAuth();
-  const router = useRouter();
+  const { login, setHomePage, isAuthenticated } = useAuth();
+
+  const startDesigning = async () => {
+    setHomePage(false)
+  }
 
   return (
     <ImageBackground 
@@ -30,7 +35,9 @@ export default function HomeScreen() {
       
       <View style={styles.overlay}>
         <SafeAreaView style={styles.safeArea}>
-          
+
+           
+
           {/* Header container to position the LearnIda pill top-left */}
           <View style={styles.header}>
             <LearnIda />
@@ -43,18 +50,17 @@ export default function HomeScreen() {
               <ImageViewer imgSource={PlaceholderImage} />
             </View> 
 
-            
-            <TouchableOpacity 
-              style={styles.loginButton} 
-              activeOpacity={0.8}
-              onPress={() => router.push('/login')}
-            >
-              <Text style={styles.loginButtonText}>Start Designing</Text>
-            </TouchableOpacity>
-          </View>
-
-        </SafeAreaView>
+        {/* The login button */}
+        {/* <Link href="/login" asChild> */}
+        <TouchableOpacity style={styles.loginButton} activeOpacity={0.8} onPress={ startDesigning }>
+          <Text style={styles.loginButtonText}>Start Designing</Text>
+        </TouchableOpacity>
+        {/* </Link> */}
+      
       </View>
+        </SafeAreaView>
+        </View>
+
     </ImageBackground>
   );
 }
