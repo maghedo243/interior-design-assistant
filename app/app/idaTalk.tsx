@@ -60,13 +60,15 @@ export default function IdaTalkScreen() {
     setSelectedImages([]);
 
     if (newEntry.images) {
-      const loadEntry = {
-        role: 'ai',
-        text: "Loading...",
-        loading: true
-      }
-      setChatHistory([...chatHistory, newEntry, loadEntry])
+      
       try {
+          const loadEntry = {
+            role: 'ai',
+            text: "Loading...",
+            loading: true
+          }
+        setChatHistory([...chatHistory, newEntry, loadEntry])
+
         const recommendations = await getRecommendations(user, newEntry.text, newEntry.images)
 
         console.log("Testing Delay")
@@ -77,9 +79,9 @@ export default function IdaTalkScreen() {
           recommendations: recommendations
         }
 
-        setChatHistory([...chatHistory.slice(0,-1),responseEntry])
+        setChatHistory([...chatHistory.slice(0,-1), responseEntry])
       } catch (error) {
-        
+        // error
       }
     } else {
         setChatHistory([...chatHistory, newEntry]);
