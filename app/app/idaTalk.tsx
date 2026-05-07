@@ -16,13 +16,14 @@ import { useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { getRecommendations } from '@/services/APIHandler';
 import { useAuth } from "@/context/AuthContext";
+import { Product } from "@/types";
 
 const BackgroundImg = require('@/assets/images/BackgroundHome.ida.png');
 
 export default function IdaTalkScreen() {
   const [message, setMessage] = useState('');
   const [selectedImages, setSelectedImages] = useState<any[]>([]);
-  const [chatHistory, setChatHistory] = useState<{ role: string, text: string, images?: any[] }[]>([]);
+  const [chatHistory, setChatHistory] = useState<{ role: string, text: string, images?: any[], recommendations?: Product[]}[] >([]);
   const router = useRouter();
   const { user } = useAuth();
 
