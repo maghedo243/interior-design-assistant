@@ -5,6 +5,35 @@ import { GoogleGenAI } from "@google/genai";
 
 
 export class RecommendationEngine {
+    static sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+    private static async callWithRetry<T>(
+        fn: () => Promise<T>, 
+        retries = 3, 
+        initialDelay = 2000
+    ): Promise<T> {
+        let lastError: any;
+        
+        for (let i = 0; i < retries; i++) {
+            try {
+                return await fn();
+            } catch (error: any) {
+                lastError = error;
+                
+                const status = error?.status || error?.response?.status || error?.code || 0;
+                if (status === 429 || status === 503 || i < retries - 1) {
+                    const jitter = Math.random() * 1000; // adds 0-1 seconds of randomness
+                    const waitTime = (initialDelay * Math.pow(2, i)) + jitter;
+                    console.warn(`⚠️ API busy (Attempt ${i + 1}/${retries}). Retrying in ${waitTime}ms...`);
+                    await RecommendationEngine.sleep(waitTime);
+                    continue;
+                }
+                throw error; // Rethrow if it's a 404 or other fatal error
+            }
+        }
+        throw lastError;
+    }
+
     private static picturePrompt = `You are an expert Interior Design Aesthetic Extractor generating a string for a vector database. Your job is to analyze the attached image of a room and extract its core design language, formatted EXACTLY like an e-commerce product listing.
 
                                     Truths: 
@@ -170,15 +199,21 @@ export class RecommendationEngine {
 
             // Ask Gemini for picture and query vector strings
             const [pictureResult, queryResult] = await Promise.all([
-                ai.models.generateContent({
-                    model: "gemini-2.5-flash", 
-                    contents: [...imageParts, { text: this.picturePrompt }]
-                }),
-                ai.models.generateContent({
-                    model: "gemma-4-31b-it", 
-                    contents: [{ text: this.queryPrompt + "Redecoration Request: \"" + query + "\"" }]
-                })
+                RecommendationEngine.callWithRetry(() => 
+                    ai.models.generateContent({
+                        model: "gemini-2.5-flash",  
+                        contents: [...imageParts, { text: this.picturePrompt }]
+                    })
+                ),
+                RecommendationEngine.callWithRetry(() => 
+                    ai.models.generateContent({
+                        model: "gemma-4-31b-it",
+                        contents: [{ text: this.queryPrompt + `Redecoration Request: "${query}"` }]
+                    })
+                )
             ]);
+
+            
 
             if(!pictureResult.text) throw "Room Context not generated: gemini failure"
             if(!queryResult.text) throw "Query Context not generated: gemini failure"

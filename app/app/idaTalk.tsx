@@ -10,7 +10,8 @@ import {
   Platform,
   ScrollView,
   Image,
-  ActivityIndicator
+  ActivityIndicator,
+  Alert
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -65,17 +66,21 @@ export default function IdaTalkScreen() {
         loading: true
       }
       setChatHistory([...chatHistory, newEntry, loadEntry])
-      const recommendations = await getRecommendations(user, newEntry.text, newEntry.images)
+      try {
+        const recommendations = await getRecommendations(user, newEntry.text, newEntry.images)
 
-      console.log("Testing Delay")
+        console.log("Testing Delay")
 
-      const responseEntry = {
-        role: 'ai',
-        text: "Here are your recommendations",
-        recommendations: recommendations
+        const responseEntry = {
+          role: 'ai',
+          text: "Here are your recommendations",
+          recommendations: recommendations
+        }
+
+        setChatHistory([...chatHistory.slice(0,-1),responseEntry])
+      } catch (error) {
+        
       }
-
-      setChatHistory([...chatHistory.slice(0,-1),responseEntry])
     } else {
         setChatHistory([...chatHistory, newEntry]);
         // Space for conversational AI in the future
@@ -146,7 +151,7 @@ export default function IdaTalkScreen() {
                             />
                             <TouchableOpacity 
                               style={styles.viewButton}
-                              onPress={() => console.log(`Viewing ${rec.name}`)}
+                              onPress={() => Alert.alert("Viewing Recommendation", `You selected: ${rec.name.value}`)}
                             >
                               <Text style={styles.viewButtonText}>View Name</Text>
                             </TouchableOpacity>
@@ -332,7 +337,7 @@ const styles = StyleSheet.create({
   sendButton: { padding: 2 },
   recommendationScroll: {
     marginTop: 10,
-    flexDirection: 'row',
+    flexGrow: 0,
   },
   recommendationCard: {
     marginRight: 12,
