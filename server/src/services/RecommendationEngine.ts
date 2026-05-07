@@ -1,6 +1,8 @@
 import { DatabaseHandler } from './DatabaseHandler.js';
 import { UserDataHandler } from './UserDataHandler.js';
+import { EmbeddingHandler } from './EmbeddingHandler.js';
 import { GoogleGenAI } from "@google/genai";
+
 
 export class RecommendationEngine {
     private static picturePrompt = `You are an expert Interior Design Aesthetic Extractor generating a string for a vector database. Your job is to analyze the attached image of a room and extract its core design language, formatted EXACTLY like an e-commerce product listing.
@@ -35,9 +37,6 @@ export class RecommendationEngine {
                                     requested colors, textures, and aesthetic changes. Bullet points separated by
                                     .}. Category & Features: {semantic keywords about the target aesthetic and
                                     requested item}"
-
-                                    Redecorating Request: "I'm looking to make this room a rustic vibe, similar to
-                                    the unfinished look of a modern coffee shop"
                                     `
 
     public static async getPersonalizedFeed(userId: string) {
@@ -195,7 +194,7 @@ export class RecommendationEngine {
             // Ask Gemini for query vector string
             const queryResult = await ai.models.generateContent({
                 model: "gemini-3-flash-preview", 
-                contents: [ { text: this.queryPrompt + "Redecoration Query: \"" + query + "\"" } ]
+                contents: [ { text: this.queryPrompt + "Redecoration Request: \"" + query + "\"" } ]
             });
 
             if(!queryResult.text) throw "Query Context not generated: gemini failure"
@@ -207,12 +206,16 @@ export class RecommendationEngine {
 
             queryKeywords = queryKeywords.trim()
 
-            
+            // Generate vectors
+            const roomVector = EmbeddingHandler.generate(roomVectorString);
+            const queryVector = EmbeddingHandler.generate(queryVectorString);
 
             console.log(roomVectorString)
             console.log(roomKeywords)
+            console.log(roomVector)
             console.log(queryVectorString)
             console.log(queryKeywords)
+            console.log(queryVector)
         } catch (error) {
             console.error(`Failed to generate recommendations for user ${userId}:`, error);
             throw error;

@@ -62,7 +62,7 @@ export default function SuggestScreen() {
                     type: asset.mimeType || 'image/jpeg', 
                 }));
 
-                const recommend = await getRecommendations(user, "Post-modern gothic", imagesFromPicker as any)
+                const recommend = await getRecommendations(user, "I want this room to be post-modern gothic", imagesFromPicker as any)
                 console.log(recommend)
             }
             

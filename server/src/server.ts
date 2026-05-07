@@ -7,6 +7,7 @@ import cors from 'cors';
 import {AuthenticationHandler} from './services/AuthenticationHandler.js';
 import dotenv from 'dotenv';
 import { DatabaseHandler } from './services/DatabaseHandler.js';
+import { EmbeddingHandler } from './services/EmbeddingHandler.js';
 import { ObjectId } from 'mongodb';
 
 //Express server setupp
@@ -19,6 +20,7 @@ app.use(express.json());
 //Initializing helper files and config
 dotenv.config()
 await DatabaseHandler.init()
+await EmbeddingHandler.init()
 
 app.use(fileUpload({
     limits: { fileSize: 30 * 1024 * 1024 }, // Limit to 5MB
