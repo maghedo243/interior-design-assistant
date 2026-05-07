@@ -94,9 +94,9 @@ app.post('/api/recommendation', async (req: Request, res: Response) => {
     });
 
     try {
-        await RecommendationEngine.getPersonalizedRecommentations(userId, query, processedData)
+        const recommendedFeed = await RecommendationEngine.getPersonalizedRecommentations(userId, query, processedData)
 
-        return res.status(200).json({ message: 'Markiplier E' });
+        return res.status(200).json(recommendedFeed);
     } catch (error){
         return res.status(400).json({ error: "Failed to generate recommendation feed for user" });
     }

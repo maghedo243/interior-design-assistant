@@ -39,6 +39,8 @@ export class RecommendationEngine {
                                     requested item}"
                                     `
 
+    private static vibePrompt = ``
+
     public static async getPersonalizedFeed(userId: string) {
         try {
             const userData = await DatabaseHandler.getUserDataById(userId);
@@ -298,7 +300,7 @@ export class RecommendationEngine {
             applyRRF(roomResults ?? [], 1.2);
             applyRRF(lexicalResults ?? [], 1.0);
 
-            // Only apply the user profile if it actually returned results
+            // Only apply the user profile if user had vector
             if (userResults) {
                 applyRRF(userResults, 0.6); 
             }
@@ -309,10 +311,7 @@ export class RecommendationEngine {
                 .slice(0, 30)
                 .map(item => item.doc);
 
-            finalFeed.forEach((item: any) => {
-                console.log(item)
-            })
-
+            return finalFeed
             
         } catch (error) {
             console.error(`Failed to generate recommendations for user ${userId}:`, error);
