@@ -98,14 +98,14 @@ export const getFeed = async(user: any) => {
     if(feedResults === undefined || feedResults.length === 0) return;
 
     const formattedFeed: Product[] = await Promise.all(
-    feedResults.map(async (item: any) => ({
-        _id: item._id,
-        name: item.item_name,
-        image: await getValidPhoto([item.main_image_id, ...(item.other_image_id || [])]),
-        description: item.product_description,
-        style: item.style
-    }))
-);
+        feedResults.map(async (item: any) => ({
+            _id: item._id,
+            name: item.item_name,
+            image: await getValidPhoto([item.main_image_id, ...(item.other_image_id || [])]),
+            description: item.product_description,
+            style: item.style
+        }))
+    );
 
     return formattedFeed;
 }
@@ -129,7 +129,20 @@ export const getRecommendations = async(user: any, query: string, files: (Buffer
         },
         body: formData
     }
-    return await callAPI<any>(APIBase + `/api/recommendation`, options)
+    const response = await callAPI<any>(APIBase + `/api/recommendation`, options)
+    const recommendationResults = await response.json()
+
+    const formattedFeed: Product[] = await Promise.all(
+        recommendationResults.map(async (item: any) => ({
+            _id: item._id,
+            name: item.item_name,
+            image: await getValidPhoto([item.main_image_id, ...(item.other_image_id || [])]),
+            description: item.product_description,
+            style: item.style
+        }))
+    );
+
+    return formattedFeed;
 }
 
 export const userLogin = async(username: string, password: string) => {
