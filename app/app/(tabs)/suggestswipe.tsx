@@ -1,7 +1,15 @@
-import {View, StyleSheet, ActivityIndicator, Text, useWindowDimensions} from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
+import { 
+  View, 
+  StyleSheet, 
+  ActivityIndicator, 
+  Text, 
+  ImageBackground, 
 
+  Platform //Platform import
+, useWindowDimensions} from 'react-native';
 import ImageViewer from '@/components/ImageViewer';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 
 import {useEffect, useState} from "react";
 import { useSharedValue } from 'react-native-reanimated';
@@ -11,7 +19,11 @@ import { useAuth } from "@/context/AuthContext";
 import { Product, triggerZone } from "@/types";
 import Draggable from '@/components/Draggable';
 import DistanceFading from '@/components/DistanceFading';
+import LearnIda from '@/components/LearnIda';
 
+
+
+const BackgroundImg = require('@/assets/images/BackgroundHome.ida.png');
 // TODO: Add a "maybe"
 
 export default function SuggestScreen() {
@@ -23,8 +35,8 @@ export default function SuggestScreen() {
 
     const { height, width } = useWindowDimensions();
 
-    const imageX = useSharedValue(0)
-    const imageY = useSharedValue(0)
+    const imageX = useSharedValue(0);
+    const imageY = useSharedValue(0);
 
     const scroll = async (interaction: 'like' | 'dislike' | 'maybe') => {
         setLoading(true)
@@ -39,12 +51,10 @@ export default function SuggestScreen() {
         } else if(productIndex == 30) { // reset feed counter at 30
             setProductIndex(0)
         }
-
-        setLoading(false)
-    }
+    };
 
     const loadFeed = async () => {
-        setLoading(true)
+        setLoading(true);
         try {
             const productFeed = await getFeed(user);
             
@@ -68,29 +78,33 @@ export default function SuggestScreen() {
             
         } catch (error) {
             console.error("❌ Failed to load feed:", error);
-            // Optional: Set an error state here to show a "Retry" button
         } finally {
             setLoading(false);
         }
-    }
+    };
 
     useEffect(() => {
         loadFeed();
-    },[])
+    }, []);
 
-    if(loading){
+    if (loading && products.length === 0) {
         return (
-            <View style={styles.container}>
-                <ActivityIndicator size="large" color="#ffffff" />
-            </View>
-        )
+            <ImageBackground source={BackgroundImg} style={styles.container} resizeMode="cover">
+                <View style={[styles.container, styles.centerContent]}>
+                    <ActivityIndicator size="large" color="#ac76a4" />
+                </View>
+               
+            </ImageBackground>
+        );
     }
 
     if (!products[productIndex]) {
         return (
-            <View style={styles.container}>
-                <Text>No more products!</Text>
-            </View>
+            <ImageBackground source={BackgroundImg} style={styles.container} resizeMode="cover">
+                <View style={[styles.container, styles.centerContent]}>
+                    <Text style={styles.productName}>No more products!</Text>
+                </View>
+            </ImageBackground>
         );
     }
 
@@ -104,29 +118,70 @@ export default function SuggestScreen() {
     ]
 
     return (
-        <View style={styles.container}>
-            <Draggable translateX={imageX} translateY={imageY} triggerZones={triggerZones} shouldRotate rotationFactor={55} style={styles.imageContainer}>
-                <ImageViewer imgSource={currentProduct.image}/>
+    <ImageBackground source={BackgroundImg} style={styles.container} resizeMode="cover">
+        <SafeAreaView style={styles.header}>
+            <LearnIda />
+        </SafeAreaView>
+         
+        <View style={styles.overlay}>
+            <Draggable 
+                translateX={imageX} 
+                translateY={imageY} 
+                triggerZones={triggerZones} 
+                shouldRotate 
+                rotationFactor={55} 
+                style={styles.imageContainer}
+            >
+                <ImageViewer imgSource={currentProduct.image} />
             </Draggable>
-           
-            {/* <Text style={styles.productName}>{currentProduct.name}</Text> */}
+            {/* <Text style={styles.text}>{currentProduct.name}</Text> */}
         </View>
-    );
+    </ImageBackground>
+);
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#1C4587'
+    },
+    header: {
+    paddingHorizontal: 25,
+    paddingTop: 20,
+    alignItems: 'flex-start', // Keeps LearnIda on the left
+    
+  },
+    overlay: {
+        flex: 1,
+        backgroundColor: 'rgba(68, 36, 36, 0.1)',
+        justifyContent: 'center',
+    },
+    centerContent: {
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     imageContainer: {
         alignSelf: 'center',
         width: "90%",
-        marginTop: '20%'
+        height: "60%", 
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.5,
+        shadowRadius: 15,
+        elevation: 10,
     },
     productName: {
-        marginTop: '5%',
         color: 'white',
-        textAlign: 'center'
+        textAlign: 'center',
+        fontSize: 20,
+        fontWeight: 'bold'
+    }, 
+    text: {
+        color: '#fff',
+        fontSize: 24,
+        fontWeight: 'bold',
+        marginTop: 20,
+        textAlign: 'center',
+        fontFamily: Platform.OS === 'ios' ? 'Snell Roundhand' : 'serif',
+        fontStyle: 'italic',
     }
 });

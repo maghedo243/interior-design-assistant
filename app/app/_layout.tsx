@@ -4,6 +4,7 @@ import {AuthProvider, useAuth} from "@/context/AuthContext";
 import {ActivityIndicator, View} from "react-native";
 import {useEffect} from "react";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 //Root of all navigation
 function RootLayoutNav() {
@@ -18,14 +19,20 @@ function RootLayoutNav() {
                 if (pathname !== '/') router.replace('/');
                 return;
             }
-            if (isAuthenticated && !newUser && pathname !== '/about') {
-                router.replace('/about');
-            }
-            else if (!isAuthenticated && pathname !== '/login') {
-                router.replace('/login');
-            }
-            else if (isAuthenticated && newUser && pathname !== '/interests') {
-                router.replace('/interests');
+            // LEARN IDA TODO
+            if (!isAuthenticated) {
+                if (pathname !== '/login') {
+                    router.replace('/login')
+                    return;
+                }
+            } else {
+                if (newUser && pathname !== "/interests") {
+                    router.replace('/interests');
+                    return;
+                } else {
+                    router.replace('/(tabs)/dashboard')
+                }
+                // if they are authenticated and not a new user
             }
         }
     }, [isAuthenticated, loading, newUser, homePage]); //Called when any these properties change
@@ -59,9 +66,11 @@ export default function RootLayout() {
         //AuthProvider needed to use auth provider in children
         //GestureHandlerRootView needed to use gesture based components in children
         <GestureHandlerRootView style={{ flex: 1 }}>
-            <AuthProvider>
-                <RootLayoutNav />
-            </AuthProvider>
+            <SafeAreaProvider>
+                <AuthProvider>
+                    <RootLayoutNav />
+                </AuthProvider>
+            </SafeAreaProvider>
         </GestureHandlerRootView>
     );
 }

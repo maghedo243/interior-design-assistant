@@ -4,10 +4,30 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 export default function TabLayout() {
     return (
         <Tabs
+        
             screenOptions={{
-                tabBarActiveTintColor: '#ffd33d',
+               
+               
+        // This line hides the top header globally for all tabs
+                headerShown: false,
+                // Color of the icon when selected
+                tabBarActiveTintColor: '#ac76a4', 
+                
+                // Color of the icon when not selected
+                tabBarInactiveTintColor: '#8e8e8e', 
+                
+                // This changes the actual bar background
+                tabBarStyle: {
+                    backgroundColor: '#1a0a0a',
+                    borderTopWidth: 0,          
+                    elevation: 0,               // Removes shadow
+                },
+                headerStyle: {
+                    backgroundColor: '#1a0a0a',
+                },
+                headerTintColor: '#fff',
             }}
-            initialRouteName="about"
+            initialRouteName="dashboard"
         >
             <Tabs.Screen
                 name="scan"
@@ -15,6 +35,15 @@ export default function TabLayout() {
                     title: 'Scan',
                     tabBarIcon: ({ color, focused }) => (
                         <Ionicons name={focused ? 'camera-outline' : 'camera-outline'} color={color} size={24}/>
+                    ),
+                }}
+            />
+            <Tabs.Screen
+                name="dashboard"
+                options={{
+                    title: 'Dashboard',
+                    tabBarIcon: ({ color, focused }) => (
+                        <Ionicons name={focused ? 'barcode' : 'barcode-outline'} color={color} size={24}/>
                     ),
                 }}
             /> 
@@ -26,16 +55,7 @@ export default function TabLayout() {
                         <Ionicons name={focused ? 'bulb' : 'bulb-outline'} color={color} size={24} />
                     ),
                 }}
-            />
-            <Tabs.Screen
-                name="about"
-                options={{
-                    title: 'About',
-                    tabBarIcon: ({ color, focused }) => (
-                        <Ionicons name={focused ? 'information-circle' : 'information-circle-outline'} color={color} size={24}/>
-                    ),
-                }}
-            />
+            />            
         </Tabs>
     );
 }

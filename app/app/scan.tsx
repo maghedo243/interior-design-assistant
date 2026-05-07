@@ -3,15 +3,19 @@ import {
     CameraType,
     CameraView,
     useCameraPermissions,
+    
 } from "expo-camera";
 import { useRef, useState, useEffect } from "react";
-import { Button, Pressable, StyleSheet, Text, View } from "react-native";
+import { Button, Pressable, StyleSheet, Text, View,ImageBackground, } from "react-native";
 import { Image } from "expo-image";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Feather from "@expo/vector-icons/Feather";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6"
 import * as ImagePicker from "expo-image-picker";
 import { Animated } from "react-native";
+import ImageViewer from '@/components/ImageViewer';
+
+
 
 
 export default function ScanScreen() {
@@ -27,6 +31,11 @@ export default function ScanScreen() {
     const dot1Scale = useRef(new Animated.Value(1)).current;
     const dot2Scale = useRef(new Animated.Value(1)).current;
     const dot3Scale = useRef(new Animated.Value(1)).current;
+    const BackgroundImg = require('@/assets/images/BackgroundHome.ida.png');
+    const phoneImg = require('@/assets/images/phoneCamera.png');
+    
+
+
 
     useEffect(() => {
         if (loading) {
@@ -150,10 +159,18 @@ export default function ScanScreen() {
     // Button to open camera (only shows when we have less than 3 photos)
     const renderCameraLauncher = () => {
         return (
-            <Pressable onPress={() => setIsCameraOpen(true)} style={styles.cameraLauncher}>
-                <AntDesign name="camera" size={80} color="black" />
-            </Pressable>
-        );
+        <Pressable 
+            onPress={() => setIsCameraOpen(true)} 
+            style={styles.cameraLauncher}
+            // activeOpacity={0.7} // Optional: adds a nice feedback when tapped
+        >
+            <Image 
+                source={phoneImg} 
+                style={styles.cameraLauncher} 
+                //contentFit="contain" // Keeps the image from stretching
+            />
+        </Pressable>
+    );
     };
 
     // Full-screen camera view with controls
@@ -203,6 +220,18 @@ export default function ScanScreen() {
 
     // ============ MAIN RENDER ============
     return (
+        <ImageBackground 
+      source={BackgroundImg} 
+      style={styles.container} 
+      resizeMode="cover"
+
+    >
+        {/* <View style={styles.cam}>
+              <ImageViewer imgSource={phoneImg} />
+            </View> */}
+        
+
+
         <View style={styles.container}>
             {isCameraOpen ? (
                 renderCamera() // Show camera if open
@@ -248,6 +277,7 @@ export default function ScanScreen() {
                 </View>
             )}
         </View>
+        </ImageBackground>
     );
 }
 
@@ -257,7 +287,7 @@ const styles = StyleSheet.create({
     // Main container - handles basic layout
     container: {
         flex: 1,
-        backgroundColor: "#6E6BAA",
+       
     },
 
     // Main UI container (when camera is closed)
@@ -311,17 +341,17 @@ const styles = StyleSheet.create({
 
     // ============ PHOTO STRIP STYLES ============
     photoStrip: {
-        bottom: 20,
+        bottom: 100,
         flexDirection: "row",
         justifyContent: "center",
         width: "100%",
         gap: 10,
     },
     previewBox: {
-        width: 90,
-        height: 90,
+        width: 150,
+        height: 150,
         borderRadius: 8,
-        backgroundColor: "#ccc",
+        backgroundColor:'rgba(126, 28, 46, 0.6)',
     },
     previewWrapper: {
         position: "relative",
@@ -338,15 +368,14 @@ const styles = StyleSheet.create({
     // ============ BUTTON STYLES ============
     cameraLauncher: {
         marginBottom: 20, // Space between camera and upload button
-        backgroundColor: "white",
-        width: 120,
-        height: 120,
+        width: 500,
+        height: 500,
         borderRadius: 60,
         alignItems: "center",
         justifyContent: "center",
     },
     uploadButton: {
-        backgroundColor: "#000",
+        backgroundColor: 'rgba(126, 28, 46, 0.6)',
         paddingVertical: 14,
         paddingHorizontal: 40,
         borderRadius: 8,
@@ -354,7 +383,7 @@ const styles = StyleSheet.create({
         justifyContent: "center",
     },
     uploadButtonText: {
-        color: "white",
+        color: '#ac76a4',
         fontSize: 18,
         fontWeight: "600",
     },
@@ -382,7 +411,7 @@ const styles = StyleSheet.create({
         width: 14,
         height: 14,
         borderRadius: 7,
-        backgroundColor: "white", // matches your Submit button aesthetic
+        backgroundColor:'#ac76a4',
     },
 
 });
