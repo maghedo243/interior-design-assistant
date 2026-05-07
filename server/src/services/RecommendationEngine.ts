@@ -171,11 +171,11 @@ export class RecommendationEngine {
             // Ask Gemini for picture and query vector strings
             const [pictureResult, queryResult] = await Promise.all([
                 ai.models.generateContent({
-                    model: "gemini-3-flash-preview", 
+                    model: "gemini-2.5-flash", 
                     contents: [...imageParts, { text: this.picturePrompt }]
                 }),
                 ai.models.generateContent({
-                    model: "gemini-3-flash-preview", 
+                    model: "gemma-3-27b", 
                     contents: [{ text: this.queryPrompt + "Redecoration Request: \"" + query + "\"" }]
                 })
             ]);
@@ -308,8 +308,6 @@ export class RecommendationEngine {
                 .sort((a, b) => b.score - a.score)
                 .slice(0, 30)
                 .map(item => item.doc);
-
-            console.log(finalFeed)
 
             return finalFeed
             
