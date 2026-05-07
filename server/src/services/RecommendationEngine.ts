@@ -174,7 +174,8 @@ export class RecommendationEngine {
                 }
             }));
 
-            const result = await ai.models.generateContent({
+            // Ask Gemini for picture vector string
+            const pictureResult = await ai.models.generateContent({
                 model: "gemini-3-flash-preview", 
                 contents: [
                     ...imageParts,
@@ -182,26 +183,46 @@ export class RecommendationEngine {
                 ],
             });
 
-            if(!result.text) throw "Room Context not generated: gemini failure"
+            if(!pictureResult.text) throw "Room Context not generated: gemini failure"
 
-            const roomVectorString = result.text.trim()
-            const roomKeywords = roomVectorString.split("Category & Features:")[1]
+            const roomVectorString = pictureResult.text.trim()
+            let roomKeywords = roomVectorString.split("Category & Features:")[1]
 
             if(!roomKeywords) throw "Room Keywords not generated: gemini failure"
 
+            roomKeywords = roomKeywords.trim()
+
+            // Ask Gemini for query vector string
+            const queryResult = await ai.models.generateContent({
+                model: "gemini-3-flash-preview", 
+                contents: [ { text: this.queryPrompt + "Redecoration Query: \"" + query + "\"" } ]
+            });
+
+            if(!queryResult.text) throw "Query Context not generated: gemini failure"
+
+            const queryVectorString = queryResult.text.trim()
+            let queryKeywords = queryVectorString.split("Category & Features:")[1]
+
+            if(!queryKeywords) throw "Query Keywords not generated: gemini failure"
+
+            queryKeywords = queryKeywords.trim()
+
+            
 
             console.log(roomVectorString)
             console.log(roomKeywords)
+            console.log(queryVectorString)
+            console.log(queryKeywords)
         } catch (error) {
             console.error(`Failed to generate recommendations for user ${userId}:`, error);
             throw error;
         }
 
         // Get user vector + keywords (DONE)
-        // Get query vector + keywords
-            // Get gemini to make vector sentence and keywords
-        // Get room vector + keywords
-            // Get gemini to make vector sentence and key words
+        // Get query vector + keywords (DONE)
+            // Get gemini to make vector sentence and keywords (DONE)
+        // Get room vector + keywords (DONE)
+            // Get gemini to make vector sentence and key words (DONE)
 
         // Compare vectors and keywords
         // Get top 40
