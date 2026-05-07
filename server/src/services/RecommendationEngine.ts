@@ -168,6 +168,14 @@ export class RecommendationEngine {
                 }
             }));
 
+            const modelList = [];
+            for await (const model of await ai.models.list()) {
+                modelList.push(model.name);
+            }
+            console.log(modelList);
+
+            return
+
             // Ask Gemini for picture and query vector strings
             const [pictureResult, queryResult] = await Promise.all([
                 ai.models.generateContent({

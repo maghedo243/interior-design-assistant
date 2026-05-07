@@ -14,38 +14,53 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
+import { getRecommendations } from '@/services/APIHandler';
+import { useAuth } from "@/context/AuthContext";
 
 const BackgroundImg = require('@/assets/images/BackgroundHome.ida.png');
 
 export default function IdaTalkScreen() {
   const [message, setMessage] = useState('');
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [chatHistory, setChatHistory] = useState<{ role: string, text: string, image?: string }[]>([]);
+  const [selectedImages, setSelectedImages] = useState<any[]>([]);
+  const [chatHistory, setChatHistory] = useState<{ role: string, text: string, images?: any[] }[]>([]);
   const router = useRouter();
+  const { user } = useAuth();
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       quality: 1,
+      allowsMultipleSelection: true
     });
 
-    if (!result.canceled) {
-      setSelectedImage(result.assets[0].uri);
+    if(!result.canceled) {
+                const imagesFromPicker = result.assets.map((asset, index) => ({
+                    uri: asset.uri,
+                    name: asset.fileName || `upload_${index}.jpg`, 
+                    type: asset.mimeType || 'image/jpeg', 
+                }));
+
+                setSelectedImages(imagesFromPicker as any)
     }
   };
 
-  const handleSend = () => {
-    if (message.trim().length === 0 && !selectedImage) return;
+  const handleSend = async () => {
+    if (message.trim().length === 0 && !selectedImages) return;
     
     const newEntry = { 
       role: 'user', 
       text: message, 
-      image: selectedImage || undefined 
+      images: selectedImages
     };
-    
+
     setChatHistory([...chatHistory, newEntry]);
     setMessage('');
-    setSelectedImage(null);
+    setSelectedImages([]);
+
+    if (newEntry.images) {
+      const recommendations = await getRecommendations(user, newEntry.text, newEntry.images)
+
+      console.log(recommendations)
+    }
   };
 
   return (
@@ -78,8 +93,17 @@ export default function IdaTalkScreen() {
           ) : (
             chatHistory.map((item, index) => (
               <View key={index} style={[styles.bubble, item.role === 'user' ? styles.userBubble : styles.idaBubble]}>
-                {item.image && (
-                  <Image source={{ uri: item.image }} style={styles.bubbleImage} />
+                {/* Check if images exist and map through them */}
+                {item.images && item.images.length > 0 && (
+                  <View style={styles.bubbleImagesWrapper}>
+                    {item.images.map((image, imgIndex) => (
+                      <Image 
+                        key={imgIndex} 
+                        source={{ uri: image.uri }} 
+                        style={styles.bubbleImage} 
+                      />
+                    ))}
+                  </View>
                 )}
                 <Text style={styles.bubbleText}>{item.text}</Text>
               </View>
@@ -89,17 +113,28 @@ export default function IdaTalkScreen() {
 
         {/* Input Section */}
         <View style={styles.footerContainer}>
-          {selectedImage && (
-            <View style={styles.previewWrapper}>
-              <Image source={{ uri: selectedImage }} style={styles.selectedImagePreview} />
-              <TouchableOpacity 
-                style={styles.closePreview} 
-                onPress={() => setSelectedImage(null)}
-              >
-                <Ionicons name="close-circle" size={24} color="#7e1c2e" />
-              </TouchableOpacity>
-            </View>
-          )}
+          {selectedImages && selectedImages.length > 0 && (
+              <View style={styles.previewWrapper}>
+                {selectedImages.map((image, index) => (
+                  <View key={index} style={styles.imageContainer}>
+                    <Image 
+                      source={{ uri: image.uri }} 
+                      style={styles.selectedImagePreview} 
+                    />
+                    <TouchableOpacity 
+                      style={styles.closeButton} 
+                      onPress={() => {
+                        // Filters out the image at the specific index that was clicked
+                        const updatedImages = selectedImages.filter((_, i) => i !== index);
+                        setSelectedImages(updatedImages);
+                      }}
+                    >
+                      <Ionicons name="close-circle" size={24} color="#7e1c2e" />
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </View>
+            )}
 
           <View style={styles.inputWrapper}>
             <TouchableOpacity style={styles.iconButton} onPress={pickImage}>
@@ -116,9 +151,9 @@ export default function IdaTalkScreen() {
             />
             
             <TouchableOpacity 
-              style={[styles.sendButton, (!message && !selectedImage) && { opacity: 0.5 }]} 
+              style={[styles.sendButton, (!message && !selectedImages) && { opacity: 0.5 }]} 
               onPress={handleSend}
-              disabled={!message && !selectedImage}
+              disabled={!message && !selectedImages}
             >
               <Ionicons name="arrow-up-circle" size={42} color="#7e1c2e" />
             </TouchableOpacity>
@@ -192,13 +227,24 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginBottom: 8,
   },
+  bubbleImagesWrapper: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8, // Keeps spacing clean between multiple images
+    marginBottom: 6, // Adds a little breathing room before the message text
+  },
+  imageContainer: {
+    position: 'relative', // Allows absolute positioning inside this specific container
+  },
   footerContainer: {
     paddingHorizontal: 15,
     paddingBottom: Platform.OS === 'ios' ? 35 : 20,
   },
   previewWrapper: {
-    marginBottom: 10,
-    paddingLeft: 10,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12, 
+    marginTop: 10,
   },
   selectedImagePreview: {
     width: 70,
@@ -207,12 +253,12 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#ac76a4',
   },
-  closePreview: {
+  closeButton: {
     position: 'absolute',
-    top: -10,
-    left: 65,
-    backgroundColor: '#fff',
-    borderRadius: 12,
+    top: -8,
+    right: -8,
+    backgroundColor: 'white', // Prevents transparent background issues behind the icon
+    borderRadius: 12, // Matches half the icon size to keep the background strictly behind the circle
   },
   inputWrapper: {
     flexDirection: 'row',

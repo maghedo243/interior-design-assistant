@@ -4,12 +4,10 @@ import {
   ActivityIndicator, 
   Text, 
   ImageBackground, 
-
   Platform //Platform import
 , useWindowDimensions} from 'react-native';
 import ImageViewer from '@/components/ImageViewer';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
 
 import {useEffect, useState} from "react";
 import { useSharedValue } from 'react-native-reanimated';
@@ -20,8 +18,6 @@ import { Product, triggerZone } from "@/types";
 import Draggable from '@/components/Draggable';
 import DistanceFading from '@/components/DistanceFading';
 import LearnIda from '@/components/LearnIda';
-
-
 
 const BackgroundImg = require('@/assets/images/BackgroundHome.ida.png');
 // TODO: Add a "maybe"
@@ -62,19 +58,6 @@ export default function SuggestScreen() {
 
             setProducts([...products.splice(25),...productFeed]);
             console.log(products.length)
-
-            const result = await ImagePicker.launchImageLibraryAsync({ allowsMultipleSelection: true });
-
-            if(!result.canceled) {
-                const imagesFromPicker = result.assets.map((asset, index) => ({
-                    uri: asset.uri,
-                    name: asset.fileName || `upload_${index}.jpg`, 
-                    type: asset.mimeType || 'image/jpeg', 
-                }));
-
-                const recommend = await getRecommendations(user, "I want this room to be post-modern gothic", imagesFromPicker as any)
-                console.log(recommend)
-            }
             
         } catch (error) {
             console.error("❌ Failed to load feed:", error);
@@ -113,8 +96,8 @@ export default function SuggestScreen() {
 
     
     const triggerZones: triggerZone[] = [
-        {x: 0, y: 0, width: width * 0.10, height: height, onTrigger: () => scroll("dislike")},
-        {x: width * 0.9, y: 0, width: width * 0.10, height: height, onTrigger: () => scroll("like")}
+        {x: 0, y: 0, width: width * 0.20, height: height, onTrigger: () => scroll("dislike")},
+        {x: width * 0.9, y: 0, width: width * 0.20, height: height, onTrigger: () => scroll("like")}
     ]
 
     return (
