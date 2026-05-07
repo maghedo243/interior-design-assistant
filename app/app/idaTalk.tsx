@@ -9,7 +9,8 @@ import {
   KeyboardAvoidingView, 
   Platform,
   ScrollView,
-  Image
+  Image,
+  ActivityIndicator
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -23,7 +24,7 @@ const BackgroundImg = require('@/assets/images/BackgroundHome.ida.png');
 export default function IdaTalkScreen() {
   const [message, setMessage] = useState('');
   const [selectedImages, setSelectedImages] = useState<any[]>([]);
-  const [chatHistory, setChatHistory] = useState<{ role: string, text: string, images?: any[], recommendations?: Product[]}[] >([]);
+  const [chatHistory, setChatHistory] = useState<{ role: string, text: string, images?: any[], recommendations?: Product[], loading?: boolean}[] >([]);
   const router = useRouter();
   const { user } = useAuth();
 
@@ -58,9 +59,16 @@ export default function IdaTalkScreen() {
     setSelectedImages([]);
 
     if (newEntry.images) {
+      const loadEntry = {
+        role: 'ai',
+        text: "Loading...",
+        loading: true
+      }
+      setChatHistory([...chatHistory, loadEntry])
       const recommendations = await getRecommendations(user, newEntry.text, newEntry.images)
 
-      console.log(recommendations)
+      console.log("EEEE")
+      
     }
   };
 
@@ -94,19 +102,25 @@ export default function IdaTalkScreen() {
           ) : (
             chatHistory.map((item, index) => (
               <View key={index} style={[styles.bubble, item.role === 'user' ? styles.userBubble : styles.idaBubble]}>
-                {/* Check if images exist and map through them */}
-                {item.images && item.images.length > 0 && (
-                  <View style={styles.bubbleImagesWrapper}>
-                    {item.images.map((image, imgIndex) => (
-                      <Image 
-                        key={imgIndex} 
-                        source={{ uri: image.uri }} 
-                        style={styles.bubbleImage} 
-                      />
-                    ))}
-                  </View>
+                {item.loading ? (
+                  <ActivityIndicator size="large" color="#ac76a4" />
+                ) : (
+                  <>
+                    {/* Check if images exist and map through them */}
+                    {item.images && item.images.length > 0 && (
+                      <View style={styles.bubbleImagesWrapper}>
+                        {item.images.map((image, imgIndex) => (
+                          <Image 
+                            key={imgIndex} 
+                            source={{ uri: image.uri }} 
+                            style={styles.bubbleImage} 
+                          />
+                        ))}
+                      </View>
+                    )}
+                    <Text style={styles.bubbleText}>{item.text}</Text>
+                  </>
                 )}
-                <Text style={styles.bubbleText}>{item.text}</Text>
               </View>
             ))
           )}
