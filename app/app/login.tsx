@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet } from 'react-native';
 import { useAuth } from "@/context/AuthContext";
 import Button from '@/components/Button';
+import LearnIda from '@/components/LearnIda';
+const BackgroundImg = require('@/assets/images/BackgroundHome.ida.png');
+
+
 
 export default function LoginScreen() {
     const [username, setUsername] = useState('');
@@ -93,6 +97,10 @@ export default function LoginScreen() {
 
     return (
         <View style={styles.container}>
+           {/* Header container to position the LearnIda pill top-left */}
+                          <View style={styles.header}>
+                            <LearnIda />
+                          </View>
             {isLogin ?
                 (
                     <>
@@ -158,6 +166,12 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
+  header: {
+    paddingHorizontal: 25,
+    paddingTop: 50,
+    alignItems: 'flex-start', // Keeps LearnIda on the left
+    
+  },
     container: {
         flex: 1,
         justifyContent: 'center',

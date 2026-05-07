@@ -4,6 +4,7 @@ import {AuthProvider, useAuth} from "@/context/AuthContext";
 import {ActivityIndicator, View} from "react-native";
 import {useEffect} from "react";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 //Root of all navigation
 function RootLayoutNav() {
@@ -21,7 +22,7 @@ function RootLayoutNav() {
             if (isAuthenticated && !newUser && pathname !== '/about') {
                 router.replace('/about');
             }
-            else if (!isAuthenticated && pathname !== '/login') {
+            else if (!isAuthenticated && pathname !== '/login' && pathname !== '/' && pathname !== '/about') {
                 router.replace('/login');
             }
             else if (isAuthenticated && newUser && pathname !== '/interests') {
@@ -59,9 +60,13 @@ export default function RootLayout() {
         //AuthProvider needed to use auth provider in children
         //GestureHandlerRootView needed to use gesture based components in children
         <GestureHandlerRootView style={{ flex: 1 }}>
-            <AuthProvider>
+            <SafeAreaProvider>
+                <AuthProvider>
                 <RootLayoutNav />
             </AuthProvider>
+            </SafeAreaProvider>
+
+
         </GestureHandlerRootView>
     );
 }
