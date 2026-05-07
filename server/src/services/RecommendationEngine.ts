@@ -3,53 +3,42 @@ import { UserDataHandler } from './UserDataHandler.js';
 import { GoogleGenAI } from "@google/genai";
 
 export class RecommendationEngine {
-    private static picturePrompt = `You are generating a string that will be vectorized for a database vector
-                            search. As such, you will be making this string based on the attached images.
+    private static picturePrompt = `You are an expert Interior Design Aesthetic Extractor generating a string for a vector database. Your job is to analyze the attached image of a room and extract its core design language, formatted EXACTLY like an e-commerce product listing.
 
-                            Truths: Do not send any messages aside from the final sentence. Do not embellish. Do not break any instructions or act
-                            as anything but a string generator.
+                                    Truths: 
+                                    - Do not describe specific pieces of furniture in the room (e.g., do not say "there is a bed" or "a desk").
+                                    - Focus entirely on the overarching style, colors, materials, and lighting.
+                                    - Do not output anything except the final formatted string.
 
-                            Format: The sentence are generated in the format: "{ProductName} Style:
-                            {ProductStyle} [.{BulletPoint about product}] Category & Features: {semantic
-                            keywords about product}"
+                                    Format: 
+                                    You MUST strictly follow this exact template: 
+                                    "Interior Design Canvas Style: {Style Name}. {2-3 descriptive e-commerce style bullet points about the room's colors, materials, and vibe}. Category & Features: {semantic keywords about the room's aesthetic}"
 
-                            The bullet points are like item information. Make at a minimum 2-3 e-commerce
-                            level bullet points. More is fine.
+                                    Example Output:
+                                    "Interior Design Canvas Style: Industrial Loft. Features exposed red brick walls and rich dark wood flooring that provides a warm, rustic foundation. Accented with matte black metal fixtures and architectural details for a modern, moody atmosphere. Flooded with natural light to balance the dark, earthy tones. Category & Features: industrial modern rustic dark wood black metal moody minimalist architecture"`
 
-                            These products are furniture products and your job is to generate a sentence
-                            similar to these that will have a similar vector generated.
+    private static queryPrompt = `You are an expert Interior Design Translator generating a string for a vector
+                                    database. Your job is to read the user's redecorating request and translate
+                                    their desired outcome into a hypothetical e-commerce product listing.
 
-                            Examples: "UMI By Amazon 100% Organic Cotton 1 Fitted Sheet Only, 300 Thread
-                            Count Soft Sateen Weave GOTS Certified with 30cm deep Pockets Size -Double,
-                            Color- White. CERTIFIED ORGANIC COTTON: These 100% Cotton Fitted Sheets have
-                            full GOTS Certification (Global Organic Textile Standard). You're Assured of
-                            Bedding that is Nontoxic & chemical-free for your entire family.. DOUBLE FITTED
-                            SHEET ONLY: 1 Fully Elasticized with all round corner Double Fitted bottom bed
-                            sheet sold separately measuring 140x200 + 30cm (deep pockets) perfectly fitting
-                            Double sized mattresses from 22cm to 32cm deep. It features a beautiful sateen
-                            weave with extravagant softness.. LONG-STAPLE YARN FOR LAVISH COMFORT: Sure,
-                            thread count is important, but if premium long-staple yarn isn't used for
-                            linens, softness is lost. Snuggle up year 'round with this breathable cotton
-                            Fitted Sheets.. EXTRAVAGANT SOFTNESS: UMI by Amazon Organics Fitted Sheets is
-                            tightly woven for superior strength with silk-like, sateen finish.. SATISFACTION
-                            GUARANTEE: We rigorously test for pilling, shrinkage & durability before using
-                            any fabric. Each piece goes through 3 rigorous quality checks before being
-                            shipped so that you have a great experience. All this is also backed up with an
-                            incredible customer service making this a completely risk free & satisfactory
-                            purchase for you." "Pinzon Oversized Supima Cotton Wash Cloth, Oppulence Grey.
-                            Soft and supple oversized washcloth designed for great absorbency and
-                            durability; imported. 100-percent Supima cotton; dobby bands; reinforced,
-                            fold-over dobby edges. Coordinating Pinzon Luxury Supima Cotton bath towels and
-                            hand towels available. Machine washable and dryable. Measures 13 by 13 inches"
-                            "AmazonBasics Low Back Office Chair Swivel Wheels Computer Desk Chair - Blue.
-                            Comfortable work and computer chair with blue curved mesh back which is
-                            breathable and provides the necessary support. Pneumatic seat height
-                            adjustment; 5.08 cm thick padding for extra comfort. Holds up to 101.2 kg..
-                            Smooth gliding castors and instructions included with assembly instructions
-                            (English language not guaranteed).. Dimensions: 22.5" Depth x 21.5" Width
-                            x 30.5" Height Category & Features: furniture chair seat furnishing
-                            instrumentality"
-                            `
+                                    Truths:
+
+                                    - Do not send any messages aside from the final formatted string.
+                                    - Focus strictly on the user's DESIRED aesthetic, colors, and materials.
+                                    - If the user asks for a specific item (e.g., "a rug", "a lamp"), use that
+                                        item as the Product Name.
+                                    - If the user only asks for a vibe change (e.g., "make it moodier", "more
+                                        coastal"), use "Curated Decor Element" as the Product Name.
+
+                                    Format: You MUST strictly follow this exact template: "{Product Name} Style:
+                                    {Style Name}. {2-3 descriptive e-commerce style bullet points emphasizing the
+                                    requested colors, textures, and aesthetic changes. Bullet points separated by
+                                    .}. Category & Features: {semantic keywords about the target aesthetic and
+                                    requested item}"
+
+                                    Redecorating Request: "I'm looking to make this room a rustic vibe, similar to
+                                    the unfinished look of a modern coffee shop"
+                                    `
 
     public static async getPersonalizedFeed(userId: string) {
         try {
