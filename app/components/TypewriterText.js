@@ -23,7 +23,7 @@ export default function TypewriterText({ text, style, delay = 200}) {
             clearInterval(typingIntval)
         }
     }, delay)
-    return () => clearInterval(typingInterval);
+    return () => clearInterval(typingIntval);
 
 
 

@@ -1,108 +1,107 @@
-
-import { Image } from 'expo-image';
+import React from 'react';
+import { 
+  View, 
+  Platform, 
+  StyleSheet, 
+  Text, 
+  TouchableOpacity, 
+  ImageBackground,
+  SafeAreaView 
+} from 'react-native';
 import { useAuth } from '@/context/AuthContext';
-import { View, Platform, StyleSheet, Text, TouchableOpacity } from 'react-native';
-import { Link } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 import ImageViewer from '@/components/ImageViewer';
-import TypewriterText from '@/components/TypewriterText';
-import LearnIda from '@/components/learnIda';
+import { useRouter } from 'expo-router';
+import LearnIda from '@/components/LearnIda';
+import LogoutButton from '@/components/LogoutButton';
 
-const PlaceholderImage = require('@/assets/images/gif.gif');
+const BackgroundImg = require('@/assets/images/BackgroundHome.ida.png');
+const PlaceholderImage = require('@/assets/images/gifHelp.gif');
 
 export default function HomeScreen() {
-  const {logout} = useAuth();
+  const { logout } = useAuth();
+  const router = useRouter();
 
   return (
-    <View style={styles.container}>
+    <ImageBackground 
+      source={BackgroundImg} 
+      style={styles.container} 
+      resizeMode="cover"
+    >
       
-      <LearnIda />
+      <View style={styles.overlay}>
+        <SafeAreaView style={styles.safeArea}>
+          
+          {/* Header container to position the LearnIda pill top-left */}
+          <View style={styles.header}>
+            <LearnIda />
+            
+          </View>
 
-      {/* Wrapper to center the image and button below the header */}
-      <View style={styles.content}>
-        
+          <View style={styles.content}>
+            {/* Original Logo/GIF section */}
+            <View style={styles.imageContainer}>
+              <ImageViewer imgSource={PlaceholderImage} />
+            </View> 
 
-       {/* Title right above the gif */}
-  <TypewriterText 
-    text="I.D.A" 
-    style={styles.mainTitle} 
-    delay={200} 
-  />
-        <View style={styles.imageContainer}>
-          <ImageViewer imgSource={PlaceholderImage} />
-        </View>
+            
+            <TouchableOpacity 
+              style={styles.loginButton} 
+              activeOpacity={0.8}
+              onPress={() => router.push('/login')}
+            >
+              <Text style={styles.loginButtonText}>Start Designing</Text>
+            </TouchableOpacity>
+          </View>
 
-        {/* The login button */}
-        {/* <Link href="/login" asChild> */}
-        <TouchableOpacity style={styles.loginButton} activeOpacity={0.8}>
-          <Text style={styles.loginButtonText}>Start Designing</Text>
-        </TouchableOpacity>
-        {/* </Link> */}
+        </SafeAreaView>
       </View>
-
-    </View>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  //background kinda
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
+  },
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.2)', 
+  },
+  safeArea: {
+    flex: 1,
+  },
+  header: {
+    paddingHorizontal: 25,
+    paddingTop: 50,
+    alignItems: 'flex-start', // Keeps LearnIda on the left
+    
   },
   content: {
     flex: 1,
-    alignItems: 'center', // Centers horizontally
-    justifyContent: 'center', // Centers vertically in the remaining space below the header
-    paddingBottom: 40, // Gives a little breathing room at the bottom
-  },
-  // ADDED: Styling for your new title
-  mainTitle: {
-    fontSize: 60,
-    fontWeight: 'bold',
-    color: '#491868', // Matches your login button text
-    marginTop: 70,
-    marginBottom: 5, // Pushes the gif down a little bit so they aren't touching
-    textAlign: 'center',
-    fontFamily: Platform.OS === 'ios' ? 'Snell Roundhand' : 'serif',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingBottom: 60, // Balances visual weight with the new top button
   },
   imageContainer: {
-    // marginTop: 8,
-    marginBottom: 5,
+    marginBottom: 30, // Space between the GIF and the button
   }, 
-  //Buttons
   loginButton: {
-    backgroundColor: '#ede8ec', 
+    backgroundColor: '#7e1c2e', 
     paddingVertical: 15,
     paddingHorizontal: 40,
     borderRadius: 30, 
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 3, 
-    shadowColor: '#000', 
+    shadowColor: '#ac76a4', 
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
   },
   loginButtonText: {
-    color: '#491868', 
+    color: '#ac76a4', 
     fontSize: 24,
     fontWeight: 'bold',
-    fontFamily: Platform.OS === 'ios' ? 'Snell Roundhand' : 'serif', 
-  },
-  //header 
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 10,
-    width: '100%', // Ensures it spans the top
-  },
-  logoText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#000',
     fontFamily: Platform.OS === 'ios' ? 'Snell Roundhand' : 'serif', 
   }
 });

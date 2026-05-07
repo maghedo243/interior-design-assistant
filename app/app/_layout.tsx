@@ -3,6 +3,7 @@ import 'react-native-reanimated';
 import {AuthProvider, useAuth} from "@/context/AuthContext";
 import {ActivityIndicator, View} from "react-native";
 import {useEffect} from "react";
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 //Root of all navigation
 function RootLayoutNav() {
@@ -16,7 +17,7 @@ function RootLayoutNav() {
             if (isAuthenticated && !newUser && pathname !== '/(tabs)') {
                 router.replace('/(tabs)');
             }
-            else if (!isAuthenticated && pathname !== '/login') {
+            else if (!isAuthenticated && pathname !== '/login' && pathname !== '/' && pathname !== '/about') {
                 router.replace('/login');
             }
             else if (isAuthenticated && newUser && pathname !== '/interests') {
@@ -43,8 +44,12 @@ function RootLayoutNav() {
 export default function RootLayout() {
     return (
         //AuthProvider needed to use auth provider in children
-        <AuthProvider>
-          <RootLayoutNav />
-        </AuthProvider>
+        //GesturdHandlerRootView needed to use gesture based components in children
+        <GestureHandlerRootView style={{ flex: 1 }}>
+            <AuthProvider>
+                <RootLayoutNav />
+            </AuthProvider>
+        </GestureHandlerRootView>
+        
     );
 }

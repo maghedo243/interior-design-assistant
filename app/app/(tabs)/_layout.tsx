@@ -4,8 +4,28 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 export default function TabLayout() {
     return (
         <Tabs
+        
             screenOptions={{
-                tabBarActiveTintColor: '#ffd33d',
+               
+               
+        // This line hides the top header globally for all tabs
+                headerShown: false,
+                // Color of the icon when selected
+                tabBarActiveTintColor: '#ac76a4', 
+                
+                // Color of the icon when not selected
+                tabBarInactiveTintColor: '#8e8e8e', 
+                
+                // This changes the actual bar background
+                tabBarStyle: {
+                    backgroundColor: '#1a0a0a',
+                    borderTopWidth: 0,          
+                    elevation: 0,               // Removes shadow
+                },
+                headerStyle: {
+                    backgroundColor: '#1a0a0a',
+                },
+                headerTintColor: '#fff',
             }}
         >
             <Tabs.Screen
@@ -26,15 +46,29 @@ export default function TabLayout() {
                     ),
                 }}
             />
+        
             <Tabs.Screen
-                name="about"
+                name="login"
                 options={{
-                    title: 'About',
+                    title: 'log',
                     tabBarIcon: ({ color, focused }) => (
-                        <Ionicons name={focused ? 'information-circle' : 'information-circle-outline'} color={color} size={24}/>
+                        <Ionicons name={focused ? 'bulb' : 'bulb-outline'} color={color} size={24} />
                     ),
                 }}
             />
+            
+            <Tabs.Screen
+                name="interests"
+                options={{
+                    title: 'inter',
+                    tabBarIcon: ({ color, focused }) => (
+                        <Ionicons name={focused ? 'bulb' : 'bulb-outline'} color={color} size={24} />
+                    ),
+                }}
+
+            />
+
+            
         </Tabs>
     );
 }
