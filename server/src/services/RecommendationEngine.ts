@@ -207,8 +207,8 @@ export class RecommendationEngine {
             queryKeywords = queryKeywords.trim()
 
             // Generate vectors
-            const roomVector = EmbeddingHandler.generate(roomVectorString);
-            const queryVector = EmbeddingHandler.generate(queryVectorString);
+            const roomVector = await EmbeddingHandler.generate(roomVectorString);
+            const queryVector = await EmbeddingHandler.generate(queryVectorString);
 
             console.log(roomVectorString)
             console.log(roomKeywords)
