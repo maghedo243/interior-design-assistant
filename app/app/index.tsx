@@ -7,8 +7,6 @@ import {
   Text, 
   TouchableOpacity, 
   ImageBackground,
-  
- 
 } from 'react-native';
 import { useAuth } from '@/context/AuthContext';
 import ImageViewer from '@/components/ImageViewer';

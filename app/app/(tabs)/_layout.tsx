@@ -27,7 +27,7 @@ export default function TabLayout() {
                 },
                 headerTintColor: '#fff',
             }}
-            initialRouteName="scan"
+            initialRouteName="dashboard"
         >
             <Tabs.Screen
                 name="scan"
@@ -35,6 +35,15 @@ export default function TabLayout() {
                     title: 'Scan',
                     tabBarIcon: ({ color, focused }) => (
                         <Ionicons name={focused ? 'camera-outline' : 'camera-outline'} color={color} size={24}/>
+                    ),
+                }}
+            />
+            <Tabs.Screen
+                name="dashboard"
+                options={{
+                    title: 'Dashboard',
+                    tabBarIcon: ({ color, focused }) => (
+                        <Ionicons name={focused ? 'barcode' : 'barcode-outline'} color={color} size={24}/>
                     ),
                 }}
             /> 
@@ -46,30 +55,7 @@ export default function TabLayout() {
                         <Ionicons name={focused ? 'bulb' : 'bulb-outline'} color={color} size={24} />
                     ),
                 }}
-            />
-        
-            <Tabs.Screen
-                name="login"
-                options={{
-                    title: 'log',
-                    tabBarIcon: ({ color, focused }) => (
-                        <Ionicons name={focused ? 'bulb' : 'bulb-outline'} color={color} size={24} />
-                    ),
-                }}
-            />
-            
-            <Tabs.Screen
-                name="interests"
-                options={{
-                    title: 'inter',
-                    tabBarIcon: ({ color, focused }) => (
-                        <Ionicons name={focused ? 'bulb' : 'bulb-outline'} color={color} size={24} />
-                    ),
-                }}
-
-            />
-
-            
+            />            
         </Tabs>
     );
 }
