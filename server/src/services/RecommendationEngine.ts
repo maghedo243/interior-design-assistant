@@ -78,7 +78,7 @@ export class RecommendationEngine {
                         index: "default",
                         text: {
                             query: userSearchTerms,
-                            path: ["enriched_keywords", "item_name", "style"]
+                            path: ["enriched_keywords", "item_name.value", "style.value"]
                         }
                     }
                 },
@@ -148,17 +148,12 @@ export class RecommendationEngine {
     }
 
     public static async getPersonalizedRecommentations(userId: string, query: string, images: any){
-        const base64Images = images.map((image: any) => ({
-            ...image,
-            data: image.data.toString('base64')
-        }));
-
         try {
             const userData = await DatabaseHandler.getUserDataById(userId);
 
             if (!userData) throw new Error("User not found");
 
-            const userVector = userData.vector;
+            const userVector = userData.vector || [];
             const recentTags = userData.recentTags || [];
 
             // TODO: What happens when they don't have a vector
@@ -173,49 +168,152 @@ export class RecommendationEngine {
                 }
             }));
 
-            // Ask Gemini for picture vector string
-            const pictureResult = await ai.models.generateContent({
-                model: "gemini-3-flash-preview", 
-                contents: [
-                    ...imageParts,
-                    { text: this.picturePrompt }
-                ],
-            });
+            // Ask Gemini for picture and query vector strings
+            const [pictureResult, queryResult] = await Promise.all([
+                ai.models.generateContent({
+                    model: "gemini-3-flash-preview", 
+                    contents: [...imageParts, { text: this.picturePrompt }]
+                }),
+                ai.models.generateContent({
+                    model: "gemini-3-flash-preview", 
+                    contents: [{ text: this.queryPrompt + "Redecoration Request: \"" + query + "\"" }]
+                })
+            ]);
 
             if(!pictureResult.text) throw "Room Context not generated: gemini failure"
+            if(!queryResult.text) throw "Query Context not generated: gemini failure"
 
             const roomVectorString = pictureResult.text.trim()
             let roomKeywords = roomVectorString.split("Category & Features:")[1]
 
-            if(!roomKeywords) throw "Room Keywords not generated: gemini failure"
-
-            roomKeywords = roomKeywords.trim()
-
-            // Ask Gemini for query vector string
-            const queryResult = await ai.models.generateContent({
-                model: "gemini-3-flash-preview", 
-                contents: [ { text: this.queryPrompt + "Redecoration Request: \"" + query + "\"" } ]
-            });
-
-            if(!queryResult.text) throw "Query Context not generated: gemini failure"
-
             const queryVectorString = queryResult.text.trim()
             let queryKeywords = queryVectorString.split("Category & Features:")[1]
 
+            if(!roomKeywords) throw "Room Keywords not generated: gemini failure"
             if(!queryKeywords) throw "Query Keywords not generated: gemini failure"
 
+            roomKeywords = roomKeywords.trim()
             queryKeywords = queryKeywords.trim()
-
+            
             // Generate vectors
             const roomVector = await EmbeddingHandler.generate(roomVectorString);
             const queryVector = await EmbeddingHandler.generate(queryVectorString);
 
-            console.log(roomVectorString)
-            console.log(roomKeywords)
-            console.log(roomVector)
-            console.log(queryVectorString)
-            console.log(queryKeywords)
-            console.log(queryVector)
+            // Set up search pipelines
+            const queryVectorPipeline = [
+                    { $vectorSearch: { index: "vector_index", path: "description_embedding", queryVector: queryVector, numCandidates: 100, limit: 50 } },
+                    { $project: { description_embedding: 0 } }
+                ]
+
+            const roomVectorPipeline = [
+                    { $vectorSearch: { index: "vector_index", path: "description_embedding", queryVector: roomVector, numCandidates: 100, limit: 50 } },
+                    { $project: { description_embedding: 0 } }
+                ]
+
+            const userVectorPipeline = [
+                    { $vectorSearch: { index: "vector_index", path: "description_embedding", queryVector: userVector, numCandidates: 100, limit: 50 } },
+                    { $project: { description_embedding: 0 } }
+                ]
+
+            const lexicalPipeline = [
+                    {
+                        $search: {
+                            index: "default",
+                            compound: {
+                                should: [
+                                    // Query weight at 5.0
+                                    {
+                                        text: {
+                                            query: queryKeywords, 
+                                            path: ["item_name.value", "enriched_keywords"],
+                                            score: { boost: { value: 5.0 } }
+                                        }
+                                    },
+                                    // Room weight at 2.0
+                                    {
+                                        text: {
+                                            query: roomKeywords,
+                                            path: ["style.value", "enriched_keywords"],
+                                            score: { boost: { value: 2.0 } }
+                                        }
+                                    },
+                                    // User weight at 0.5
+                                    {
+                                        text: {
+                                            query: recentTags,
+                                            path: ["style.value", "enriched_keywords"],
+                                            score: { boost: { value: 0.5 } } 
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    { $limit: 50 },
+                    { $project: { description_embedding: 0 } }
+                ];
+
+            const pipelines = [
+                DatabaseHandler.query("products","productListings",queryVectorPipeline),
+                DatabaseHandler.query("products","productListings",roomVectorPipeline),
+                DatabaseHandler.query("products","productListings",lexicalPipeline)
+            ]
+
+            if (userVector) {
+                pipelines.push(DatabaseHandler.query("products","productListings",userVectorPipeline))
+            }
+            
+            // Query database with pipelines
+            const [queryResults, roomResults, lexicalResults, userResults] = await Promise.all(pipelines);
+
+            // Setup for RRF math
+            const K = 60; // Smoothing constant
+            const fusedScores = new Map<string, { score: number; doc: any }>();
+
+            // Weighing Function
+            const applyRRF = (results: any[], weight: number) => {
+                results.forEach((doc, index) => {
+                    const rank = index + 1; // Ranks are 1-based
+                    const rrfScore = weight / (K + rank);
+                    const id = doc._id.toString();
+
+                    if (fusedScores.has(id)) {
+                        // Add the new weighted score to the existing one
+                        const entry = fusedScores.get(id)!;
+                        entry.score += rrfScore;
+                        
+                        // Safety: If the existing doc was "hollow" (only had _id),
+                        // and this new doc has more fields, update it.
+                        if (Object.keys(doc).length > Object.keys(entry.doc).length) {
+                            entry.doc = doc;
+                        }
+                    } else {
+                        fusedScores.set(id, { score: rrfScore, doc: doc });
+                    }
+                });
+            };
+
+            // 3. Apply the math to your result sets
+            applyRRF(queryResults ?? [], 2.0);
+            applyRRF(roomResults ?? [], 1.2);
+            applyRRF(lexicalResults ?? [], 1.0);
+
+            // Only apply the user profile if it actually returned results
+            if (userResults) {
+                applyRRF(userResults, 0.6); 
+            }
+
+            // 4. Sort and Slice
+            const finalFeed = Array.from(fusedScores.values())
+                .sort((a, b) => b.score - a.score)
+                .slice(0, 30)
+                .map(item => item.doc);
+
+            finalFeed.forEach((item: any) => {
+                console.log(item)
+            })
+
+            
         } catch (error) {
             console.error(`Failed to generate recommendations for user ${userId}:`, error);
             throw error;
