@@ -210,12 +210,9 @@ export class RecommendationEngine {
             const roomVector = await EmbeddingHandler.generate(roomVectorString);
             const queryVector = await EmbeddingHandler.generate(queryVectorString);
 
-            console.log(roomVectorString)
-            console.log(roomKeywords)
-            console.log(roomVector)
-            console.log(queryVectorString)
-            console.log(queryKeywords)
-            console.log(queryVector)
+            
+
+            
         } catch (error) {
             console.error(`Failed to generate recommendations for user ${userId}:`, error);
             throw error;
