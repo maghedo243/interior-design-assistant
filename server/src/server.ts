@@ -96,7 +96,7 @@ app.post('/api/recommendation', async (req: Request, res: Response) => {
     try {
         const recommendedFeed = await RecommendationEngine.getPersonalizedRecommentations(userId, query, processedData)
 
-        return res.status(200).json({recommendations: recommendedFeed} );
+        return res.status(200).json( recommendedFeed );
     } catch (error){
         return res.status(400).json({ error: "Failed to generate recommendation feed for user" });
     }
