@@ -158,8 +158,6 @@ export class RecommendationEngine {
             const userVector = userData.vector || [];
             const recentTags = userData.recentTags || [];
 
-            // TODO: What happens when they don't have a vector
-
             // Initialzie Gemini
             const ai = new GoogleGenAI({});
 
@@ -310,6 +308,8 @@ export class RecommendationEngine {
                 .sort((a, b) => b.score - a.score)
                 .slice(0, 30)
                 .map(item => item.doc);
+
+            console.log(finalFeed)
 
             return finalFeed
             
