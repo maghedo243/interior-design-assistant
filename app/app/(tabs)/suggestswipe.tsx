@@ -101,28 +101,26 @@ export default function SuggestScreen() {
     ]
 
     return (
-        <ImageBackground source={BackgroundImg} style={styles.container} resizeMode="cover">
-             
-                
-            <View style={styles.overlay}>
-                <Draggable 
-                    translateX={imageX} 
-                    translateY={imageY} 
-                    triggerZones={triggerZones} 
-                    shouldRotate 
-                    rotationFactor={55} 
-                    style={styles.imageContainer}
-                >
-                    <ImageViewer imgSource={currentProduct.image_url} />
-                </Draggable>
-                <Text style={styles.text}>{currentProduct.name}</Text>
-            </View>
-            {/* Header container to position the LearnIda pill top-left */}
-                          <View style={styles.header}>
-                            <LearnIda />
-                          </View>
-        </ImageBackground>
-    );
+    <ImageBackground source={BackgroundImg} style={styles.container} resizeMode="cover">
+        <SafeAreaView style={styles.header}>
+            <LearnIda />
+        </SafeAreaView>
+         
+        <View style={styles.overlay}>
+            <Draggable 
+                translateX={imageX} 
+                translateY={imageY} 
+                triggerZones={triggerZones} 
+                shouldRotate 
+                rotationFactor={55} 
+                style={styles.imageContainer}
+            >
+                <ImageViewer imgSource={currentProduct.image_url} />
+            </Draggable>
+            <Text style={styles.text}>{currentProduct.name}</Text>
+        </View>
+    </ImageBackground>
+);
 }
 
 const styles = StyleSheet.create({
@@ -130,12 +128,11 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     header: {
-    position: 'absolute', 
-    top: Platform.OS === 'ios' ? 0 : 20, // SafeAreaView handles the iOS notch
-    left: 20,
-    zIndex: 999, 
-},
-
+    paddingHorizontal: 25,
+    paddingTop: 20,
+    alignItems: 'flex-start', // Keeps LearnIda on the left
+    
+  },
     overlay: {
         flex: 1,
         backgroundColor: 'rgba(68, 36, 36, 0.1)',

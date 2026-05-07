@@ -18,7 +18,7 @@ export default function AboutScreen() {
                     <TypewriterText 
                         text={aboutText} 
                         style={styles.text} 
-                        delay={25} 
+                        delay={10} 
                     />
                 </View>
 

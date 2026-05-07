@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet } from 'react-native';
+import { View, Text, TextInput, StyleSheet,ImageBackground  } from 'react-native';
 import { useAuth } from "@/context/AuthContext";
 import Button from '@/components/Button';
-import LearnIda from '@/components/LearnIda';
 const BackgroundImg = require('@/assets/images/BackgroundHome.ida.png');
 
 
@@ -95,12 +94,18 @@ export default function LoginScreen() {
         }
     };
 
-    return (
+    return ( 
+    <ImageBackground 
+      source={BackgroundImg} 
+      style={styles.container} 
+      resizeMode="cover"
+    >
+
+        
+        
         <View style={styles.container}>
-           {/* Header container to position the LearnIda pill top-left */}
-                          <View style={styles.header}>
-                            <LearnIda />
-                          </View>
+            
+         
             {isLogin ?
                 (
                     <>
@@ -162,21 +167,17 @@ export default function LoginScreen() {
                 )
             }
         </View>
+         </ImageBackground>
     );
 }
 
 const styles = StyleSheet.create({
-  header: {
-    paddingHorizontal: 25,
-    paddingTop: 50,
-    alignItems: 'flex-start', // Keeps LearnIda on the left
     
-  },
+  
     container: {
         flex: 1,
         justifyContent: 'center',
         padding: 20,
-        backgroundColor: '#4A2338',
     },
     title: {
         fontSize: 32,
@@ -194,13 +195,13 @@ const styles = StyleSheet.create({
         fontWeight: 800,
         fontSize: 20,
         textAlign: 'center',
-        color: '#977fd4',
+        color: '#ac76a4',
     },
     message: {
         marginTop: 15,
         textAlign: 'center',
         fontSize: 16,
-        color: '#fff',
+        color: '#f6f4f4',
     },
     buttonText: {
         color: '#977fd4', 
