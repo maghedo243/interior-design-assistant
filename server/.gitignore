@@ -1,5 +1,6 @@
 # Dependencies
 /node_modules
+.cache/
 
 # Build Artifacts
 # Match your tsconfig.json outDir, which is typically 'dist'
