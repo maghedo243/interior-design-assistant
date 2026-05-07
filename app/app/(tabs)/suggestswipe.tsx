@@ -73,7 +73,8 @@ export default function SuggestScreen() {
                 }));
 
                 const recommend = await getRecommendations(user, "I want this room to be post-modern gothic", imagesFromPicker as any)
-                console.log(recommend)
+                const recc = recommend.json()
+                console.log(recc)
             }
             
         } catch (error) {
