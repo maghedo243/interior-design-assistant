@@ -41,7 +41,7 @@ export default function IdaTalkScreen() {
                     type: asset.mimeType || 'image/jpeg', 
                 }));
 
-                setSelectedImages(imagesFromPicker as any)
+                setSelectedImages([...selectedImages, ...imagesFromPicker as any])
     }
   };
 
@@ -54,7 +54,7 @@ export default function IdaTalkScreen() {
       images: selectedImages
     };
 
-    setChatHistory([...chatHistory, newEntry]);
+    
     setMessage('');
     setSelectedImages([]);
 
@@ -64,11 +64,21 @@ export default function IdaTalkScreen() {
         text: "Loading...",
         loading: true
       }
-      setChatHistory([...chatHistory, loadEntry])
+      setChatHistory([...chatHistory, newEntry, loadEntry])
       const recommendations = await getRecommendations(user, newEntry.text, newEntry.images)
 
-      console.log("EEEE")
-      
+      console.log("Testing Delay")
+
+      const responseEntry = {
+        role: 'ai',
+        text: "Here are your recommendations",
+        recommendations: recommendations
+      }
+
+      setChatHistory([...chatHistory.slice(0,-1),responseEntry])
+    } else {
+        setChatHistory([...chatHistory, newEntry]);
+        // Space for conversational AI in the future
     }
   };
 
@@ -118,7 +128,32 @@ export default function IdaTalkScreen() {
                         ))}
                       </View>
                     )}
+                    
                     <Text style={styles.bubbleText}>{item.text}</Text>
+
+                    {/* Check if recommendations exist and map them into a horizontal scroll */}
+                    {item.recommendations && item.recommendations.length > 0 && (
+                      <ScrollView 
+                        horizontal={true} 
+                        showsHorizontalScrollIndicator={false} 
+                        style={styles.recommendationScroll}
+                      >
+                        {item.recommendations.map((rec, recIndex) => (
+                          <View key={recIndex} style={styles.recommendationCard}>
+                            <Image 
+                              source={{ uri: rec.image }} // Adjust 'rec.image' to match your actual data structure
+                              style={styles.recommendationImage} 
+                            />
+                            <TouchableOpacity 
+                              style={styles.viewButton}
+                              onPress={() => console.log(`Viewing ${rec.name}`)}
+                            >
+                              <Text style={styles.viewButtonText}>View Name</Text>
+                            </TouchableOpacity>
+                          </View>
+                        ))}
+                      </ScrollView>
+                    )}
                   </>
                 )}
               </View>
@@ -295,4 +330,33 @@ const styles = StyleSheet.create({
   },
   iconButton: { padding: 5 },
   sendButton: { padding: 2 },
+  recommendationScroll: {
+    marginTop: 10,
+    flexDirection: 'row',
+  },
+  recommendationCard: {
+    marginRight: 12,
+    alignItems: 'center',
+    width: 120, // Forces a consistent width for each item in the scroll
+  },
+  recommendationImage: {
+    width: 120,
+    height: 120,
+    borderRadius: 8,
+    marginBottom: 8,
+    backgroundColor: '#e0e0e0', // Fallback color while loading
+  },
+  viewButton: {
+    backgroundColor: '#ac76a4',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 16,
+    width: '100%',
+    alignItems: 'center',
+  },
+  viewButtonText: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
 });
