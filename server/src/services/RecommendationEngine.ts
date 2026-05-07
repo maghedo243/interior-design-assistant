@@ -175,19 +175,16 @@ export class RecommendationEngine {
             console.log(modelList);
 
             // Ask Gemini for picture and query vector strings
-            // const [pictureResult, queryResult] = await Promise.all([
-            //     ai.models.generateContent({
-            //         model: "gemini-2.5-flash", 
-            //         contents: [...imageParts, { text: this.picturePrompt }]
-            //     }),
-            //     ai.models.generateContent({
-            //         model: "gemma-3-27b", 
-            //         contents: [{ text: this.queryPrompt + "Redecoration Request: \"" + query + "\"" }]
-            //     })
-            // ]);
-
-            const pictureResult = { text: "E" }
-            const queryResult = { text: "E" }
+            const [pictureResult, queryResult] = await Promise.all([
+                ai.models.generateContent({
+                    model: "gemini-2.5-flash", 
+                    contents: [...imageParts, { text: this.picturePrompt }]
+                }),
+                ai.models.generateContent({
+                    model: "gemma-4-31b-it", 
+                    contents: [{ text: this.queryPrompt + "Redecoration Request: \"" + query + "\"" }]
+                })
+            ]);
 
             if(!pictureResult.text) throw "Room Context not generated: gemini failure"
             if(!queryResult.text) throw "Query Context not generated: gemini failure"
